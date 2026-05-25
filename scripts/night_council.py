@@ -205,15 +205,16 @@ def add_context_orchestrator_maintenance(report):
     """Run context orchestrator maintenance — prune, consolidate, summarize."""
     try:
         sys.path.insert(0, os.path.join(os.path.expanduser("~/.hermes/scripts")))
-        from context_orchestrator import end_session, start_session, get_context
+        from context_orchestrator import get_orchestrator
 
-        result = end_session(summary="Night Council automated context maintenance cycle")
+        orch = get_orchestrator("__night_council_maintenance__")
+        result = orch.end_session(summary="Night Council automated context maintenance cycle")
         report["context_maintenance"] = {
             "blocks_saved": result.get("blocks_saved", 0),
             "maintenance": result.get("maintenance", {}),
         }
 
-        new_session = start_session(task="night_council_maintenance", phase="maintenance")
+        new_session = orch.start_session(task="night_council_maintenance", phase="maintenance")
         report["context_new_session"] = {
             "blocks": new_session.get("total_blocks", 0),
             "headroom": new_session.get("headroom", 0),
