@@ -1,0 +1,48 @@
+{
+  "name": "archive_review",
+  "description": "Night Council integration — reviews, consolidates, and archives old notes and memory entries",
+  "version": "1.0",
+  "trigger": {
+    "type": "cron",
+    "schedule": "0 3 * * *"
+  },
+  "model": "qwen3:14b",
+  "provider": "mac-ollama",
+  "max_tokens": 4096,
+  "temperature": 0.2,
+  "permissions": ["memory:read", "memory:write", "notes:read", "notes:write"],
+  "cache_ttl": 0,
+  "params": {
+    "age_threshold_days": {
+      "type": "int",
+      "default": 30,
+      "description": "Notes older than this get reviewed for archival"
+    }
+  },
+  "steps": [
+    {
+      "action": "memory_query",
+      "params": {
+        "query": "notes and entries older than {{age_threshold_days}} days that may need consolidation or archival",
+        "limit": 50
+      }
+    },
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "You are Hermes running the Night Council archive review. Based on the following memory entries, identify:\n1. Entries that can be consolidated (similar topics that should be merged)\n2. Entries that are stale and can be archived\n3. Entries that contain important long-term knowledge to preserve\n4. Any orphaned entries with no clear connection to other memory\n\nMemory entries:\n{{step_0}}",
+        "max_tokens": 4096,
+        "temperature": 0.2
+      }
+    },
+    {
+      "action": "memory_store",
+      "params": {
+        "category": "action",
+        "content": "Night Council review completed. Consolidation and archival recommendations generated from step_1.",
+        "importance": 5,
+        "tags": ["night-council", "archive-review", "maintenance"]
+      }
+    }
+  ]
+}

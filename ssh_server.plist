@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>user.lumenhub.sshd.2222</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/sbin/sshd</string>
+        <string>-p</string>
+        <string>2222</string>
+        <string>-o</string>
+        <string>HostKey=/Users/lumenhubai/.ssh/lumenhub</string>
+        <string>-o</string>
+        <string>UsePAM=no</string>
+        <string>-o</string>
+        <string>PasswordAuthentication=no</string>
+        <string>-o</string>
+        <string>PubkeyAuthentication=yes</string>
+        <string>-o</string>
+        <string>AuthorizedKeysFile=.ssh/authorized_keys</string>
+        <string>-o</string>
+        <string>LogLevel=INFO</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/lumenhubai/.hermes/logs/sshd-2222.out</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lumenhubai/.hermes/logs/sshd-2222.err</string>
+</dict>
+</plist>

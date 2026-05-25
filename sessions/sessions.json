@@ -1,0 +1,39 @@
+{
+  "agent:main:telegram:dm:1767184775": {
+    "session_key": "agent:main:telegram:dm:1767184775",
+    "session_id": "20260525_140623_9be187",
+    "created_at": "2026-05-25T05:56:22.668671",
+    "updated_at": "2026-05-25T14:15:59.304267",
+    "display_name": "Gerald Hibbs",
+    "platform": "telegram",
+    "chat_type": "dm",
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "total_tokens": 0,
+    "last_prompt_tokens": 42695,
+    "estimated_cost_usd": 0.0,
+    "cost_status": "unknown",
+    "expiry_finalized": false,
+    "suspended": false,
+    "resume_pending": false,
+    "resume_reason": null,
+    "last_resume_marked_at": null,
+    "is_fresh_reset": false,
+    "was_auto_reset": false,
+    "auto_reset_reason": null,
+    "reset_had_activity": false,
+    "origin": {
+      "platform": "telegram",
+      "chat_id": "1767184775",
+      "chat_name": "Gerald Hibbs",
+      "chat_type": "dm",
+      "user_id": "1767184775",
+      "user_name": "Gerald Hibbs",
+      "thread_id": null,
+      "chat_topic": null,
+      "message_id": "6310"
+    }
+  }
+}

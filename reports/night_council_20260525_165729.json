@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-05-25T16:57:29.969585+00:00",
+  "type": "night_council_report",
+  "daily_summary": {
+    "date": "2026-05-24",
+    "total_prompts": 0,
+    "total_completions": 0,
+    "total_decisions": 0,
+    "total_errors": 0,
+    "total_tool_calls": 0,
+    "models_used": {},
+    "errors": [],
+    "decisions": [],
+    "avg_response_length": 0,
+    "total_tokens_estimate": 0,
+    "cost_estimate_usd": 0.0
+  },
+  "model_health": {
+    "dead": [],
+    "degraded": [],
+    "healthy": [
+      "test-provider",
+      "audit-test",
+      "audit",
+      "test"
+    ]
+  },
+  "memory_review": {
+    "stats": {
+      "episodic_count": 156,
+      "semantic_count": 76,
+      "working_count": 0,
+      "db_size_bytes": 135168
+    },
+    "active_task": null,
+    "recent_insights_count": 0,
+    "recent_decisions_count": 1
+  },
+  "anomalies": [
+    "Zero prompts logged \u2014 system may have been idle"
+  ],
+  "recommendations": []
+}

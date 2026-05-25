@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.lumenhub.sshd</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/sbin/sshd</string>
+        <string>-D</string>
+        <string>-p</string>
+        <string>2222</string>
+        <string>-o</string>
+        <string>ListenAddress=0.0.0.0</string>
+        <string>-o</string>
+        <string>PermitRootLogin=no</string>
+        <string>-o</string>
+        <string>PasswordAuthentication=no</string>
+        <string>-o</string>
+        <string>PubkeyAuthentication=yes</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/sshd.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/sshd.stderr.log</string>
+    <key>Sockets</key>
+    <dict>
+        <key>Listeners</key>
+        <dict>
+            <key>SockServiceName</key>
+            <string>2222</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

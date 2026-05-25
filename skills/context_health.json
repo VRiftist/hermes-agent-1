@@ -1,0 +1,25 @@
+{
+  "name": "context_health",
+  "description": "Report current context window health including tier usage and trimming status",
+  "version": "1.0",
+  "trigger": {
+    "type": "on_request"
+  },
+  "model": "qwen3:8b",
+  "provider": "mac-ollama",
+  "max_tokens": 1024,
+  "temperature": 0.0,
+  "permissions": ["context:read"],
+  "cache_ttl": 30,
+  "params": {},
+  "steps": [
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "You are Hermes context health monitor. Return a structured status report of the context window including:\n1. Total tokens used vs budget\n2. Which tiers are active and their sizes\n3. What was last trimmed and when\n4. Overall health status (healthy/warning/critical)\n5. Recommendations if any issues exist",
+        "max_tokens": 1024,
+        "temperature": 0.0
+      }
+    }
+  ]
+}

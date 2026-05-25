@@ -1,0 +1,182 @@
+22:36:53 interrupt fired: msg='hello?', children=0, parent._interrupt=True
+22:36:53 ENTER: queued interrupt msg='hello?', agent_running=True
+23:00:36 interrupt fired: msg='telegram token 8749847449:AAHn9lvhN7uZpxYjv3SwUUdgPRI98dgPEq', children=0, parent._interrupt=True
+23:00:36 ENTER: queued interrupt msg='telegram token 8749847449:AAHn9lvhN7uZpxYjv3SwUUdgPRI98dgPEq', agent_running=True
+23:01:05 ENTER: queued interrupt msg='can you look at your memories adn tell me about our project?', agent_running=True
+23:01:05 interrupt fired: msg='can you look at your memories adn tell me about our project?', children=0, parent._interrupt=True
+23:05:45 ENTER: queued interrupt msg='Stop, interrupt. Stop now', agent_running=True
+23:05:45 interrupt fired: msg='Stop, interrupt. Stop now', children=0, parent._interrupt=True
+23:31:53 ENTER: queued interrupt msg='you there', agent_running=True
+23:31:53 interrupt fired: msg='you there', children=0, parent._interrupt=True
+23:34:54 interrupt fired: msg='yuo uthere?', children=0, parent._interrupt=True
+23:34:54 ENTER: queued interrupt msg='yuo uthere?', agent_running=True
+23:46:10 ENTER: queued interrupt msg='testing', agent_running=True
+23:46:10 interrupt fired: msg='testing', children=0, parent._interrupt=True
+23:49:58 interrupt fired: msg='teskt', children=0, parent._interrupt=True
+23:49:58 ENTER: queued interrupt msg='teskt', agent_running=True
+06:49:42 interrupt fired: msg='[Pasted text #1: 88 lines → /Users/lumenhubai/.hermes/pastes', children=0, parent._interrupt=True
+06:49:42 ENTER: queued interrupt msg='[Pasted text #1: 88 lines → /Users/lumenhubai/.hermes/pastes', agent_running=True
+06:50:16 ENTER: queued interrupt msg='Also need to ensure yuou adn linux box are setup corectly to', agent_running=True
+06:50:16 interrupt fired: msg='Also need to ensure yuou adn linux box are setup corectly to', children=0, parent._interrupt=True
+06:55:23 interrupt fired: msg='Once you get the ollama model properly configured I need you', children=0, parent._interrupt=True
+06:55:23 ENTER: queued interrupt msg='Once you get the ollama model properly configured I need you', agent_running=True
+07:00:29 interrupt fired: msg='What is the largest context windows that is confortable to f', children=0, parent._interrupt=True
+07:00:29 ENTER: queued interrupt msg='What is the largest context windows that is confortable to f', agent_running=True
+07:12:50 ENTER: queued interrupt msg='idea documenting - since context windows take up so much roo', agent_running=True
+07:12:50 interrupt fired: msg='idea documenting - since context windows take up so much roo', children=0, parent._interrupt=True
+07:27:54 ENTER: queued interrupt msg='And can you document this approapriately as', agent_running=True
+07:27:54 interrupt fired: msg='And can you document this approapriately as', children=0, parent._interrupt=True
+07:28:18 interrupt fired: msg='DOcument as experiemnt/sciene largeer model wth smaller cont', children=0, parent._interrupt=True
+07:28:18 ENTER: queued interrupt msg='DOcument as experiemnt/sciene largeer model wth smaller cont', agent_running=True
+07:28:48 interrupt fired: msg='And probably sequentially get them both awake wiht a first r', children=0, parent._interrupt=True
+07:28:48 ENTER: queued interrupt msg='And probably sequentially get them both awake wiht a first r', agent_running=True
+07:31:11 interrupt fired: msg='Can you find this one? Qwen3.6 35B-A3B', children=0, parent._interrupt=True
+07:31:11 ENTER: queued interrupt msg='Can you find this one? Qwen3.6 35B-A3B', agent_running=True
+07:33:02 ENTER: queued interrupt msg='Can you document all this? Can you get switched to RING in o', agent_running=True
+07:33:02 interrupt fired: msg='Can you document all this? Can you get switched to RING in o', children=0, parent._interrupt=True
+08:21:13 ENTER: queued interrupt msg='I am trying to gauge yoiur performance and if the model is w', agent_running=True
+08:21:13 interrupt fired: msg='I am trying to gauge yoiur performance and if the model is w', children=0, parent._interrupt=True
+09:37:25 ENTER: queued interrupt msg='can you switch yourself to ring?', agent_running=True
+09:37:25 interrupt fired: msg='can you switch yourself to ring?', children=0, parent._interrupt=True
+09:50:50 interrupt fired: msg='[Pasted text #1: 15 lines → /Users/lumenhubai/.hermes/pastes', children=0, parent._interrupt=True
+09:50:50 ENTER: queued interrupt msg='[Pasted text #1: 15 lines → /Users/lumenhubai/.hermes/pastes', agent_running=True
+10:16:44 ENTER: queued interrupt msg='I was away trigger equest again', agent_running=True
+10:16:44 interrupt fired: msg='I was away trigger equest again', children=0, parent._interrupt=True
+10:17:01 interrupt fired: msg='Did not deny, was away. Back now, trigger agian permission r', children=0, parent._interrupt=True
+10:17:01 ENTER: queued interrupt msg='Did not deny, was away. Back now, trigger agian permission r', agent_running=True
+10:36:21 interrupt fired: msg='/Users/lumenhubai/Downloads/linux\\ ssh\\ feedback.odt', children=0, parent._interrupt=True
+10:36:21 ENTER: queued interrupt msg='/Users/lumenhubai/Downloads/linux\\ ssh\\ feedback.odt', agent_running=True
+10:45:39 ENTER: queued interrupt msg='2nd hermes opened up in terminal on mac here shohuld I clsoe', agent_running=True
+10:45:39 interrupt fired: msg='2nd hermes opened up in terminal on mac here shohuld I clsoe', children=0, parent._interrupt=True
+10:53:34 interrupt fired: msg='on this box?', children=0, parent._interrupt=True
+10:53:34 ENTER: queued interrupt msg='on this box?', agent_running=True
+12:25:55 interrupt fired: msg='linux box not stp right now', children=0, parent._interrupt=True
+12:25:55 ENTER: queued interrupt msg='linux box not stp right now', agent_running=True
+12:26:05 interrupt fired: msg='can you switch to YOU on telegram for now?', children=0, parent._interrupt=True
+12:26:05 ENTER: queued interrupt msg='can you switch to YOU on telegram for now?', agent_running=True
+12:27:57 interrupt fired: msg="linux will be back don't go craxy but wer neeed to talk firs", children=0, parent._interrupt=True
+12:27:57 ENTER: queued interrupt msg="linux will be back don't go craxy but wer neeed to talk firs", agent_running=True
+12:29:26 ENTER: queued interrupt msg='send me a telegram message when you are up on telegram pleas', agent_running=True
+12:29:26 interrupt fired: msg='send me a telegram message when you are up on telegram pleas', children=0, parent._interrupt=True
+12:38:01 ENTER: queued interrupt msg='you are back ok yoiu can stop', agent_running=True
+12:38:01 interrupt fired: msg='you are back ok yoiu can stop', children=0, parent._interrupt=True
+12:40:49 interrupt fired: msg='Lets just stay all ring al the time for this second until we', children=0, parent._interrupt=True
+12:40:49 ENTER: queued interrupt msg='Lets just stay all ring al the time for this second until we', agent_running=True
+12:45:02 interrupt fired: msg='note what you did so cn fix it later,', children=0, parent._interrupt=True
+12:45:02 ENTER: queued interrupt msg='note what you did so cn fix it later,', agent_running=True
+12:46:12 interrupt fired: msg='Can you give this ring a really big context window or go to ', children=0, parent._interrupt=True
+12:46:12 ENTER: queued interrupt msg='Can you give this ring a really big context window or go to ', agent_running=True
+12:48:38 ENTER: queued interrupt msg='sorry stick with RING', agent_running=True
+12:48:38 interrupt fired: msg='sorry stick with RING', children=0, parent._interrupt=True
+12:48:47 ENTER: queued interrupt msg='\\meant stick with RING with flash fallback', agent_running=True
+12:48:47 interrupt fired: msg='\\meant stick with RING with flash fallback', children=0, parent._interrupt=True
+13:04:00 ENTER: queued interrupt msg="deepseek pro isn't working either", agent_running=True
+13:04:00 interrupt fired: msg="deepseek pro isn't working either", children=0, parent._interrupt=True
+13:04:04 interrupt fired: msg='so chat is just dead', children=0, parent._interrupt=True
+13:04:04 ENTER: queued interrupt msg='so chat is just dead', agent_running=True
+13:04:08 ENTER: queued interrupt msg='I need something stable', agent_running=True
+13:04:08 interrupt fired: msg='I need something stable', children=0, parent._interrupt=True
+13:04:53 ENTER: queued interrupt msg='theer is NO local setup anywhere htat works right now', agent_running=True
+13:04:53 interrupt fired: msg='theer is NO local setup anywhere htat works right now', children=0, parent._interrupt=True
+13:13:40 ENTER: queued interrupt msg='brand new deepseek sk-3fe191af9c104f069717e07886b1ba84', agent_running=True
+13:13:40 interrupt fired: msg='brand new deepseek sk-3fe191af9c104f069717e07886b1ba84', children=0, parent._interrupt=True
+13:17:02 interrupt fired: msg="brand new oopen router donw' throw old away sk-or-v1-c79bcbe", children=0, parent._interrupt=True
+13:17:02 ENTER: queued interrupt msg="brand new oopen router donw' throw old away sk-or-v1-c79bcbe", agent_running=True
+13:44:49 ENTER: queued interrupt msg='Can you switch tot he larges context window you support?', agent_running=True
+13:44:49 interrupt fired: msg='Can you switch tot he larges context window you support?', children=0, parent._interrupt=True
+13:48:00 interrupt fired: msg='can you switch to the largest conext window ring supports?', children=0, parent._interrupt=True
+13:48:00 ENTER: queued interrupt msg='can you switch to the largest conext window ring supports?', agent_running=True
+13:48:58 ENTER: queued interrupt msg='No rewrite and creaee 64k for 32b adn 128k for 14b with perf', agent_running=True
+13:48:58 interrupt fired: msg='No rewrite and creaee 64k for 32b adn 128k for 14b with perf', children=0, parent._interrupt=True
+13:51:00 interrupt fired: msg='256k 8b model creaed as well', children=0, parent._interrupt=True
+13:51:00 ENTER: queued interrupt msg='256k 8b model creaed as well', agent_running=True
+13:52:20 interrupt fired: msg='I probably need to restart yo for your ring config to go int', children=0, parent._interrupt=True
+13:52:20 ENTER: queued interrupt msg='I probably need to restart yo for your ring config to go int', agent_running=True
+13:55:30 ENTER: queued interrupt msg='You said proably becasue I messed up 1t up linux fallback, o', agent_running=True
+13:55:30 interrupt fired: msg='You said proably becasue I messed up 1t up linux fallback, o', children=0, parent._interrupt=True
+13:58:01 interrupt fired: msg='no ollama local on mac, what will be your daily driver', children=0, parent._interrupt=True
+13:58:01 ENTER: queued interrupt msg='no ollama local on mac, what will be your daily driver', agent_running=True
+13:58:28 ENTER: queued interrupt msg='No going to linux box as fallback unless we decide it makes ', agent_running=True
+13:58:28 interrupt fired: msg='No going to linux box as fallback unless we decide it makes ', children=0, parent._interrupt=True
+14:06:13 ENTER: queued interrupt msg='32b -64k', agent_running=True
+14:06:13 interrupt fired: msg='32b -64k', children=0, parent._interrupt=True
+14:06:24 ENTER: queued interrupt msg='96k too large', agent_running=True
+14:06:24 interrupt fired: msg='96k too large', children=0, parent._interrupt=True
+14:10:31 interrupt fired: msg='you said before ... was a speical mac thing I tink', children=0, parent._interrupt=True
+14:10:31 ENTER: queued interrupt msg='you said before ... was a speical mac thing I tink', agent_running=True
+17:52:54 ENTER: queued interrupt msg='OK needs to be a 64k so it can be configured and then we nee', agent_running=True
+17:52:54 interrupt fired: msg='OK needs to be a 64k so it can be configured and then we nee', children=0, parent._interrupt=True
+17:58:24 interrupt fired: msg='lkets get yo switch to higher context memory first', children=0, parent._interrupt=True
+17:58:24 ENTER: queued interrupt msg='lkets get yo switch to higher context memory first', agent_running=True
+17:58:57 ENTER: queued interrupt msg="no I mean YOU n RING - 96k won't wrk for laocl", agent_running=True
+17:58:57 interrupt fired: msg="no I mean YOU n RING - 96k won't wrk for laocl", children=0, parent._interrupt=True
+17:59:19 ENTER: queued interrupt msg='RING IUS cnstantly cntxt trimming, switht t olcal mdel s yu ', agent_running=True
+17:59:19 interrupt fired: msg='RING IUS cnstantly cntxt trimming, switht t olcal mdel s yu ', children=0, parent._interrupt=True
+17:59:54 ENTER: queued interrupt msg='stoop stop stiop', agent_running=True
+17:59:54 interrupt fired: msg='stoop stop stiop', children=0, parent._interrupt=True
+18:38:39 ENTER: queued interrupt msg='it shoud actulaly be 64k, check it I think 96k gets oom make', agent_running=True
+18:38:39 interrupt fired: msg='it shoud actulaly be 64k, check it I think 96k gets oom make', children=0, parent._interrupt=True
+18:39:56 ENTER: queued interrupt msg='Once that is going get Qwen3.6 35B-A3B Q4_K_M at 16–20k cont', agent_running=True
+18:39:56 interrupt fired: msg='Once that is going get Qwen3.6 35B-A3B Q4_K_M at 16–20k cont', children=0, parent._interrupt=True
+18:40:43 interrupt fired: msg='look at what is running on mac i have chrome open I can clos', children=0, parent._interrupt=True
+18:40:43 ENTER: queued interrupt msg='look at what is running on mac i have chrome open I can clos', agent_running=True
+18:42:11 interrupt fired: msg='wait, let me make sure you have keys noted we keep loosing h', children=0, parent._interrupt=True
+18:42:11 ENTER: queued interrupt msg='wait, let me make sure you have keys noted we keep loosing h', agent_running=True
+18:42:59 ENTER: queued interrupt msg='OK I just have telegram running are we better now? try killi', agent_running=True
+18:42:59 interrupt fired: msg='OK I just have telegram running are we better now? try killi', children=0, parent._interrupt=True
+18:44:19 ENTER: queued interrupt msg='d osomoe seraches and consults see if can find it foor dwnla', agent_running=True
+18:44:19 interrupt fired: msg='d osomoe seraches and consults see if can find it foor dwnla', children=0, parent._interrupt=True
+18:45:21 ENTER: queued interrupt msg='can it be run locally at no extra cost?', agent_running=True
+18:45:21 interrupt fired: msg='can it be run locally at no extra cost?', children=0, parent._interrupt=True
+18:55:58 interrupt fired: msg="come up with best strategy I don't want deepseek flash hitti", children=0, parent._interrupt=True
+18:55:58 ENTER: queued interrupt msg="come up with best strategy I don't want deepseek flash hitti", agent_running=True
+19:06:38 ENTER: queued interrupt msg='xai-wA9fA3tp2lVDFzU1rJhVhZxANjIImsH9XwLPBF5YxQUldbOftskpCy8y', agent_running=True
+19:06:38 interrupt fired: msg='xai-wA9fA3tp2lVDFzU1rJhVhZxANjIImsH9XwLPBF5YxQUldbOftskpCy8y', children=0, parent._interrupt=True
+19:08:47 ENTER: queued interrupt msg='mpmpmp mp = largest romg', agent_running=True
+19:08:47 interrupt fired: msg='mpmpmp mp = largest romg', children=0, parent._interrupt=True
+19:09:08 interrupt fired: msg='you are primary and yo uhave double your current window avai', children=0, parent._interrupt=True
+19:09:08 ENTER: queued interrupt msg='you are primary and yo uhave double your current window avai', agent_running=True
+19:13:42 interrupt fired: msg='no stop', children=0, parent._interrupt=True
+19:13:42 ENTER: queued interrupt msg='no stop', agent_running=True
+19:14:15 interrupt fired: msg='ring deepseek flash backup with deeps eek direct key and na ', children=0, parent._interrupt=True
+19:14:15 ENTER: queued interrupt msg='ring deepseek flash backup with deeps eek direct key and na ', agent_running=True
+19:20:24 ENTER: queued interrupt msg='stop and do a context check with consults', agent_running=True
+19:20:24 interrupt fired: msg='stop and do a context check with consults', children=0, parent._interrupt=True
+19:20:45 interrupt fired: msg='look up deepsee conosult merge with full context', children=0, parent._interrupt=True
+19:20:45 ENTER: queued interrupt msg='look up deepsee conosult merge with full context', agent_running=True
+19:21:21 ENTER: queued interrupt msg='[Pasted text #2: 7 lines → /Users/lumenhubai/.hermes/pastes/', agent_running=True
+19:21:21 interrupt fired: msg='[Pasted text #2: 7 lines → /Users/lumenhubai/.hermes/pastes/', children=0, parent._interrupt=True
+19:21:52 interrupt fired: msg='anyway to get you rebootted into larger coontext model and t', children=0, parent._interrupt=True
+19:21:52 ENTER: queued interrupt msg='anyway to get you rebootted into larger coontext model and t', agent_running=True
+19:22:01 interrupt fired: msg='constant compactins are an issue', children=0, parent._interrupt=True
+19:22:01 ENTER: queued interrupt msg='constant compactins are an issue', agent_running=True
+19:32:52 ENTER: queued interrupt msg='lets get terminal rebooted into larger context window', agent_running=True
+19:32:52 interrupt fired: msg='lets get terminal rebooted into larger context window', children=0, parent._interrupt=True
+19:33:01 ENTER: queued interrupt msg='I have said that many time s compaction is killing us', agent_running=True
+19:33:01 interrupt fired: msg='I have said that many time s compaction is killing us', children=0, parent._interrupt=True
+19:33:29 ENTER: queued interrupt msg='lets get yoou rebooootted reboot YOU terminal YOU the now YO', agent_running=True
+19:33:29 interrupt fired: msg='lets get yoou rebooootted reboot YOU terminal YOU the now YO', children=0, parent._interrupt=True
+19:45:44 ENTER: queued interrupt msg='let me run hermes setu8p for telegram we are looking', agent_running=True
+19:45:44 interrupt fired: msg='let me run hermes setu8p for telegram we are looking', children=0, parent._interrupt=True
+19:55:05 interrupt fired: msg='so stop nd do some full consult thining', children=0, parent._interrupt=True
+19:55:05 ENTER: queued interrupt msg='so stop nd do some full consult thining', agent_running=True
+19:55:32 interrupt fired: msg='look at stuff from tpo to bottom youo go very quck but it ke', children=0, parent._interrupt=True
+19:55:32 ENTER: queued interrupt msg='look at stuff from tpo to bottom youo go very quck but it ke', agent_running=True
+20:02:06 ENTER: queued interrupt msg='xai-wA9fA3tp2lVDFzU1rJhVhZxANjIImsH9XwLPBF5YxQUldbOftskpCy8y', agent_running=True
+20:02:06 interrupt fired: msg='xai-wA9fA3tp2lVDFzU1rJhVhZxANjIImsH9XwLPBF5YxQUldbOftskpCy8y', children=0, parent._interrupt=True
+20:15:02 ENTER: queued interrupt msg='[Pasted text #1: 10 lines → /Users/lumenhubai/.hermes/pastes', agent_running=True
+20:15:02 interrupt fired: msg='[Pasted text #1: 10 lines → /Users/lumenhubai/.hermes/pastes', children=0, parent._interrupt=True
+20:16:17 ENTER: queued interrupt msg='ok gonna switch over', agent_running=True
+20:16:17 interrupt fired: msg='ok gonna switch over', children=0, parent._interrupt=True
+20:38:54 interrupt fired: msg='5881', children=0, parent._interrupt=True
+20:38:54 ENTER: queued interrupt msg='5881', agent_running=True
+20:39:07 interrupt fired: msg="I'm back got any command sthat need running?", children=0, parent._interrupt=True
+20:39:07 ENTER: queued interrupt msg="I'm back got any command sthat need running?", agent_running=True
+20:39:58 ENTER: queued interrupt msg='linux box is got hermes running cloud firstt. Yo ushould be ', agent_running=True
+20:39:58 interrupt fired: msg='linux box is got hermes running cloud firstt. Yo ushould be ', children=0, parent._interrupt=True
+20:40:45 ENTER: queued interrupt msg="I will be back eventually, don't stop go autonomous mode on ", agent_running=True
+20:40:45 interrupt fired: msg="I will be back eventually, don't stop go autonomous mode on ", children=0, parent._interrupt=True
+20:41:43 interrupt fired: msg='ALSO, gind what the local models on mac can run at for large', children=0, parent._interrupt=True
+20:41:43 ENTER: queued interrupt msg='ALSO, gind what the local models on mac can run at for large', agent_running=True
+21:29:25 ENTER: queued interrupt msg="what else do you need to be fulling functional and I'll swit", agent_running=True
+21:29:25 interrupt fired: msg="what else do you need to be fulling functional and I'll swit", children=0, parent._interrupt=True

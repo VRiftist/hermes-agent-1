@@ -1,0 +1,32 @@
+# Secrets
+.env
+.env.local
+
+# Logs
+logs/*.jsonl
+logs/*.json
+
+# Internal state
+memory-palace/
+
+# Backup files from config edits
+config.yaml.bak.*
+
+# Auth / session
+auth.json
+auth.lock
+
+# OS / IDE
+.DS_Store
+.hermes_history
+.install_method
+.update_check
+.skill*.json
+
+# Build artifacts
+bin/
+cache/
+
+# Channel data
+channel_directory.json
+.so-files/

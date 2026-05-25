@@ -1,0 +1,22 @@
+{
+  "id": "test_exec_3784b369",
+  "name": "test_exec",
+  "created_at": "2026-05-25T12:37:55.697682+00:00",
+  "constitution": "You are a test agent.",
+  "model_preference": "mac-ollama:qwen3:14b",
+  "max_turns": 5,
+  "tool_access": [
+    "read",
+    "memory"
+  ],
+  "auto_terminate": true,
+  "status": "completed",
+  "turns_used": 1,
+  "output_log": [
+    {
+      "turn": 1,
+      "task": "Count to 10",
+      "timestamp": "2026-05-25T12:37:55.697816+00:00"
+    }
+  ]
+}

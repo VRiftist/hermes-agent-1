@@ -1,0 +1,46 @@
+{
+  "name": "auto_tag",
+  "description": "Semantic auto-tagging when a new note is created",
+  "version": "1.0",
+  "trigger": {
+    "type": "on_event",
+    "event": "note_created"
+  },
+  "model": "qwen3:8b",
+  "provider": "mac-ollama",
+  "max_tokens": 512,
+  "temperature": 0.1,
+  "permissions": ["notes:read", "notes:write", "memory:write"],
+  "cache_ttl": 0,
+  "params": {
+    "note_id": {
+      "type": "string",
+      "required": true,
+      "description": "ID of the newly created note"
+    },
+    "note_content": {
+      "type": "string",
+      "required": true,
+      "description": "Full text content of the note"
+    }
+  },
+  "steps": [
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "Extract semantic tags from this note. Return exactly 3-7 tags as a JSON array. Tags should be concise, descriptive, and useful for future retrieval. Consider: topic, project, people, decisions, action items.\n\nNote content:\n{{note_content}}",
+        "max_tokens": 512,
+        "temperature": 0.1
+      }
+    },
+    {
+      "action": "memory_store",
+      "params": {
+        "category": "observation",
+        "content": "Auto-tagged note {{note_id}} with tags from step_0",
+        "importance": 2,
+        "tags": ["auto-tag", "note-indexing"]
+      }
+    }
+  ]
+}

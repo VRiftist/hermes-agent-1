@@ -1,0 +1,52 @@
+{
+  "name": "consolidate_notes",
+  "description": "Merge related notes into structured knowledge entries",
+  "version": "1.0",
+  "trigger": {
+    "type": "on_request"
+  },
+  "model": "qwen3:14b",
+  "provider": "mac-ollama",
+  "max_tokens": 4096,
+  "temperature": 0.2,
+  "permissions": ["notes:read", "notes:write", "memory:read", "memory:write"],
+  "cache_ttl": 0,
+  "params": {
+    "topic": {
+      "type": "string",
+      "required": true,
+      "description": "Topic or theme to consolidate around"
+    },
+    "max_notes": {
+      "type": "int",
+      "default": 20,
+      "description": "Maximum notes to consider"
+    }
+  },
+  "steps": [
+    {
+      "action": "memory_query",
+      "params": {
+        "query": "Find all notes and entries related to: {{topic}}",
+        "limit": 50
+      }
+    },
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "Consolidate the following related notes into a single structured knowledge entry. Identify key facts, decisions, relationships, and any contradictions or gaps.\n\nRelated notes:\n{{step_0}}",
+        "max_tokens": 4096,
+        "temperature": 0.2
+      }
+    },
+    {
+      "action": "memory_store",
+      "params": {
+        "category": "insight",
+        "content": "Consolidated knowledge entry for topic: {{topic}} — generated from multiple notes",
+        "importance": 8,
+        "tags": ["consolidation", "knowledge-base", "{{topic}}"]
+      }
+    }
+  ]
+}

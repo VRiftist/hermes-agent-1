@@ -1,0 +1,43 @@
+{
+  "name": "memory_search",
+  "description": "Natural language search across the memory palace with relevance scoring",
+  "version": "1.0",
+  "trigger": {
+    "type": "on_request"
+  },
+  "model": "qwen3:14b",
+  "provider": "mac-ollama",
+  "max_tokens": 2048,
+  "temperature": 0.1,
+  "permissions": ["memory:read"],
+  "cache_ttl": 600,
+  "params": {
+    "query": {
+      "type": "string",
+      "required": true,
+      "description": "Natural language search query"
+    },
+    "limit": {
+      "type": "int",
+      "default": 10,
+      "description": "Max results to return"
+    }
+  },
+  "steps": [
+    {
+      "action": "memory_query",
+      "params": {
+        "query": "find information related to the user's query using semantic and keyword search",
+        "limit": 50
+      }
+    },
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "You are Hermes. The user asked a question and you retrieved these memory results. Synthesize a clear, well-structured answer drawing from all relevant results. Cite sources when helpful.\n\nUser query: {{step_0}}\n\nMemory results:\n{{step_0}}",
+        "max_tokens": 2048,
+        "temperature": 0.1
+      }
+    }
+  ]
+}

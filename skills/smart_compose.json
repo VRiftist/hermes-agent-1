@@ -1,0 +1,47 @@
+{
+  "name": "smart_compose",
+  "description": "AI writing assistance — drafts, edits, and improves text in the note editor",
+  "version": "1.0",
+  "trigger": {
+    "type": "on_request"
+  },
+  "model": "qwen3:14b",
+  "provider": "mac-ollama",
+  "max_tokens": 4096,
+  "temperature": 0.4,
+  "permissions": ["notes:read", "notes:write"],
+  "cache_ttl": 0,
+  "params": {
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "description": "The user's writing instruction or draft text"
+    },
+    "context": {
+      "type": "string",
+      "description": "Optional context about what's being written (note title, project, etc.)"
+    },
+    "tone": {
+      "type": "string",
+      "default": "neutral",
+      "description": "Writing tone: formal, casual, technical, persuasive, neutral"
+    }
+  },
+  "steps": [
+    {
+      "action": "memory_query",
+      "params": {
+        "query": "relevant context, related notes, and background for the current writing task",
+        "limit": 5
+      }
+    },
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "You are Hermes, a writing assistant. Using the user's instructions and any relevant context from memory, compose or edit text.\n\nInstructions: {{prompt}}\n\nRelevant context: {{step_0}}\n\nTone: {{tone}}",
+        "max_tokens": 4096,
+        "temperature": 0.4
+      }
+    }
+  ]
+}

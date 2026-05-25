@@ -1,0 +1,53 @@
+{
+  "name": "daily_digest",
+  "description": "AI-generated daily review of notes, decisions, and activity from the last 24 hours",
+  "version": "1.0",
+  "trigger": {
+    "type": "cron",
+    "schedule": "0 8 * * *"
+  },
+  "model": "qwen3:14b",
+  "provider": "mac-ollama",
+  "max_tokens": 2048,
+  "temperature": 0.3,
+  "permissions": ["memory:read", "notes:read", "notes:write"],
+  "cache_ttl": 3600,
+  "params": {
+    "period": {
+      "type": "string",
+      "default": "24h",
+      "description": "Time period to review: 24h, 7d, 30d"
+    },
+    "format": {
+      "type": "string",
+      "default": "bullet",
+      "description": "Output format: bullet, prose, structured"
+    }
+  },
+  "steps": [
+    {
+      "action": "memory_query",
+      "params": {
+        "query": "everything from the last {{period}}",
+        "limit": 20
+      }
+    },
+    {
+      "action": "llm_call",
+      "params": {
+        "prompt": "You are Hermes, generating a daily digest. Using the memory results below, create a concise daily review with:\n1. Key decisions made\n2. Important new information\n3. Unresolved items needing attention\n4. Suggested next actions\n\nFormat as {{format}}. Keep under 500 words.\n\nMemory results:\n{{step_0}}",
+        "max_tokens": 2048,
+        "temperature": 0.3
+      }
+    },
+    {
+      "action": "memory_store",
+      "params": {
+        "category": "observation",
+        "content": "Daily digest generated for period: {{step_1}}",
+        "importance": 3,
+        "tags": ["daily-digest", "auto-generated"]
+      }
+    }
+  ]
+}
