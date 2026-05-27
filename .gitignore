@@ -2,12 +2,19 @@
 .env
 .env.local
 
+# PII / secrets that should never be committed
+pastes/
+
 # Logs
 logs/*.jsonl
 logs/*.json
+logs/heartbeat_daemon.stdout.log
+logs/heartbeat_daemon.stderr.log
 
 # Internal state
 memory-palace/
+agent_heartbeat
+heartbeat_task_state.json
 
 # Backup files from config edits
 config.yaml.bak.*
