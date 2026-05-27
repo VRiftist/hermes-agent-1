@@ -183,7 +183,7 @@ def generate_night_report():
 
     # 5. Recommendations
     recommendations = []
-    if health["dead"]:
+    if health.get("dead"):
         recommendations.append("Investigate and restore dead models or update config to remove")
     if log_summary["cost_estimate_usd"] > 2.0:
         recommendations.append(f"High daily spend (${log_summary['cost_estimate_usd']:.2f}) — review model usage")
