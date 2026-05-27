@@ -46,15 +46,22 @@ TASK_STATE_PATH = HERMES_HOME / "heartbeat_task_state.json"
 LOG_DIR = HERMES_HOME / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# ─── Logging ────────────────────────────────────────────────────────────────
+# ─── Logging ────────────────────────────────────────────────────────────────────────
+# When SILENT_MODE is active, suppress stdout/stderr logging for cron (--mode once)
+# to avoid routine output captured by the cron framework.
+_LOG_LEVEL = logging.INFO
+_LOG_HANDLERS = [logging.FileHandler(LOG_DIR / "heartbeat_daemon.log")]
+
+if not (SILENT_MODE and ONCE_FLAG):
+    _LOG_HANDLERS.append(logging.StreamHandler(sys.stdout))
+else:
+    _LOG_LEVEL = logging.WARNING
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=_LOG_LEVEL,
     format="%(asctime)s [HEARTBEAT] %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[
-        logging.FileHandler(LOG_DIR / "heartbeat_daemon.log"),
-        logging.StreamHandler(sys.stdout),
-    ],
+    handlers=_LOG_HANDLERS,
 )
 logger = logging.getLogger("heartbeat")
 
