@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Heartbeat Task Manager — the agent's autonomous task loop.
 
@@ -13,6 +13,7 @@ Architecture role: THIS IS THE ORCHESTRATOR LOOP.
 30B is the grinder. This script is the conductor.
 """
 
+import argparse
 import json
 import logging
 import os
@@ -490,7 +491,34 @@ def run_heartbeat_cycle():
 
 
 # ─── CLI ──────────────────────────────────────────────────────────────────
-ONCE_FLAG = "--once" in sys.argv or os.environ.get("HEARTBEAT_ONCE", "0") == "1"
+
+def parse_args():
+    """Parse command-line arguments for heartbeat mode."""
+    parser = argparse.ArgumentParser(
+        description="Heartbeat Task Manager — autonomous task loop"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["once", "daemon", "auto"],
+        default="auto",
+        help=(
+            "once:    Run a single cycle and exit (for cron, 65s cap, batch=1)\n"
+            "daemon:  Run continuously with sleep loop (for launchd/systemd)\n"
+            "auto:    Detect from context — TTY → daemon, non-TTY/cron → once\n"
+        ),
+    )
+    return parser.parse_args()
+
+
+ARGS = parse_args()
+
+ONCE_FLAG = ARGS.mode == "once" or (
+    ARGS.mode == "auto"
+    and not sys.stdin.isatty()
+)
+DAEMON_FLAG = ARGS.mode == "daemon" or (
+    ARGS.mode == "auto" and sys.stdin.isatty()
+)
 
 # In --once mode (cron), cap resource limits so the framework's 120s wall
 # doesn't kill us mid-task.  Leaves ~50s headroom after subprocess for
@@ -501,13 +529,12 @@ if ONCE_FLAG:
 
 
 def main():
-    """Main heartbeat loop. With --once, run one cycle and exit (cron-friendly)."""
+    """Main heartbeat loop. With --mode once, run a single cycle and exit."""
+    mode_label = {"once": "SINGLE CYCLE", "daemon": "DAEMON", "auto": "AUTO-DETECT"}
     logger.info("=" * 60)
-    if ONCE_FLAG:
-        logger.info("🫀 HEARTBEAT TASK MANAGER (single cycle)")
-    else:
-        logger.info("🫀 HEARTBEAT TASK MANAGER STARTING")
-        logger.info(f"   Interval: {HEARTBEAT_INTERVAL}s | Task check: {TASK_CHECK_INTERVAL}s")
+    logger.info(f"🫀 HEARTBEAT TASK MANAGER  [{mode_label.get(ARGS.mode, ARGS.mode)}]")
+    if ARGS.mode == "auto":
+        logger.info(f"   TTY detected → {'daemon' if DAEMON_FLAG else 'once (cron)'}")
     logger.info(f"   Max task runtime: {MAX_TASK_RUNTIME}s | Batch limit: {TASK_BATCH_LIMIT}")
     logger.info(f"   Hermes home: {HERMES_HOME}")
     logger.info("=" * 60)
