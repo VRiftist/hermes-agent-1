@@ -490,13 +490,13 @@ def run_heartbeat_cycle():
 
 
 # ─── CLI ──────────────────────────────────────────────────────────────────
-ONCE_FLAG = " --once" in sys.argv or os.environ.get("HEARTBEAT_ONCE", "0") == "1"
+ONCE_FLAG = "--once" in sys.argv or os.environ.get("HEARTBEAT_ONCE", "0") == "1"
 
 # In --once mode (cron), cap resource limits so the framework's 120s wall
-# doesn't kill us mid-task.  Leaves ~30s headroom after our subprocess for
+# doesn't kill us mid-task.  Leaves ~50s headroom after subprocess for
 # save_state + teardown.
 if ONCE_FLAG:
-    MAX_TASK_RUNTIME = min(MAX_TASK_RUNTIME, 90)
+    MAX_TASK_RUNTIME = min(MAX_TASK_RUNTIME, 65)
     TASK_BATCH_LIMIT = min(TASK_BATCH_LIMIT, 1)
 
 
