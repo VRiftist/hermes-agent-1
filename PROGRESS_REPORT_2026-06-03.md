@@ -145,10 +145,16 @@ Not required for current pipeline (Mac→Linux outbound-only). Low priority.
 |---------|-----|--------|--------|
 | Gateway | 64251 | Stable 3+ hrs | ✅ |
 | Heartbeat Monitor (daemon) | 56226 | 5+ hours | ✅ |
-| Heartbeat Task Manager (cron) | — | Every 3 min, `--once` | ✅ (timeout capped) |
-| Session Watchdog (cron) | — | Every 5 min, 114+ runs | ✅ |
+| Heartbeat Task Manager (cron) | — | Every 3 min, `--once` | ✅ (65s cap, verified) |
+| Session Watchdog (cron) | — | Every 5 min, 125+ runs | ✅ |
 | Hermes CLI Interactive | 29803 | Active | ✅ |
 | Telegram Bot | — | Connected | ✅ |
+
+### Verification Pass (2026-06-03)
+- All 9 patched Python files — **compile clean** ✅
+- All 3 JSON configs (`cron/jobs.json`, `qg_stats.json`, `gateway_state.json`) — **valid** ✅
+- `--once` flag detection — **confirmed no typo** ✅
+- Heartbeat manual test — **<1s idle, 65s cap active** ✅
 
 ---
 
