@@ -180,3 +180,9 @@
 20:41:43 ENTER: queued interrupt msg='ALSO, gind what the local models on mac can run at for large', agent_running=True
 21:29:25 ENTER: queued interrupt msg="what else do you need to be fulling functional and I'll swit", agent_running=True
 21:29:25 interrupt fired: msg="what else do you need to be fulling functional and I'll swit", children=0, parent._interrupt=True
+11:47:17 ENTER: queued interrupt msg='can yu run seraches and check', agent_running=True
+11:47:17 interrupt fired: msg='can yu run seraches and check', children=0, parent._interrupt=True
+11:47:33 ENTER: queued interrupt msg='digital ocean paid ssl', agent_running=True
+11:47:33 interrupt fired: msg='digital ocean paid ssl', children=0, parent._interrupt=True
+11:48:03 ENTER: queued interrupt msg='oh nevermind do lets encrypt', agent_running=True
+11:48:03 interrupt fired: msg='oh nevermind do lets encrypt', children=0, parent._interrupt=True

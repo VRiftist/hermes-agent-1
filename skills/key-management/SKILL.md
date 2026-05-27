@@ -9,20 +9,22 @@ tags:
   - "health-check"
   - "rotation"
   - "telegram"
-version: "1.4.0"
-updated: "2026-05-25T23:00"
+version: "1.5.0"
+updated: "2026-05-27T16:45"
 related_skills:
   - hermes-infrastructure
   - system-testing
   - hermes-gateway-ops
   - model-consulting
   - resource-guard
+  - operational-integrity
 references:
   - references/guardian-deploy.md
   - references/vault-setup.md
   - references/config-wiring.md
   - references/2026-05-25-key-masking-incident.md
   - references/2026-05-25-session-wiring-update.md
+  - references/2026-05-27-credential-chain-fix.md
 ---
 
 ## Core Workflow
@@ -34,11 +36,9 @@ Create `~/.hermes/.env` with `chmod 600`. Template lives at `.env.template` for 
 ```
 DEEPSEEK_API_KEY=sk-...
 XAI_API_KEY=xai-...
-OPENROUTER_KEY_1=sk-or-...
-OPENROUTER_KEY_2=
-KIMI_API_KEY=  # cold standby, commented until needed
-TELEGRAM_BOT_TOKEN=  # REQUIRED for key health alerts
-TELEGRAM_CHAT_ID=    # REQUIRED for key health alerts
+OPENROUTER_API_KEY=sk-or-...    # RENAMED from OPENROUTER_KEY_1 — code expects this name
+TELEGRAM_BOT_TOKEN=...          # REQUIRED for key health alerts
+TELEGRAM_CHAT_ID=...            # REQUIRED for key health alerts
 ```
 
 **Pitfall:** The Hermes write guard blocks `write_file` on `.env` path. Use terminal heredoc instead:
@@ -49,6 +49,16 @@ VAULT
 chmod 600 .env
 ```
 
+### 1b. Verify the Write Actually Landed
+
+> **Lesson (2026-05-27):** A credential written to `.env` was silently truncated to 20 chars on disk while the write function reported success. Always verify:
+```bash
+grep "PAT\|API_KEY\|TOKEN" ~/.hermes/.env | while IFS='=' read k v; do
+    echo "$k: ${#v} chars"
+done
+```
+Every key should match its expected length. A GitHub PAT is ~93 chars. If you see a short value, the write was silently truncated and must be retried.
+
 ### 2. Wire Config to Env Vars — Runtime Priority
 
 `config.yaml` must reference env vars, never raw keys. Priority order:
@@ -57,30 +67,11 @@ chmod 600 .env
 2. **`.env` file on disk** (backup / local development)
 3. **`config.yaml` platform token fields** (lowest — legacy, avoid)
 
-**Implementation pattern:**
-```python
-# key_guardian.py and other modules use this merge:
-import os
-
-def _load_env():
-    env = {}
-    env_path = os.path.expanduser("~/.hermes/.env")
-    if os.path.exists(env_path):
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    env[k.strip()] = v.strip()
-    # Live env vars override file values (e.g. keys injected by Hermes)
-    for key in list(env.keys()):
-        live = os.environ.get(key)
-        if live:
-            env[key] = live
-    return env
+**Pitfall (2026-05-27):** After renaming `OPENROUTER_KEY_1` → `OPENROUTER_API_KEY` in `.env`, the `config.yaml` still referenced the old name `${OPENROUTER_KEY_1}`. This caused Ring quality gate and model routing to silently fail. Search `config.yaml` for any env var references and verify they match `.env` exactly:
+```bash
+grep -oP '\$\{[^}]+\}' ~/.hermes/hermes-agent/config.yaml | sort -u
+# Cross-reference against ~/.hermes/.env keys
 ```
-
-**Pitfall:** The config YAML may contain hardcoded keys from prior builds. Search and replace with regex matching the actual key prefix patterns (`sk-or-`, `sk-8ea`, `xai-Z`), not ellipsis placeholders — the real keys in the file are full-length.
 
 ### 3. Deploy Key Guardian
 
@@ -93,39 +84,72 @@ Run `scripts/key_guardian.py` daily via cron at `0 3 * * *`. It:
 
 > **Important:** key_guardian DOES make real API calls. Each check is a minimal chat completion request (~1 token) per provider. This is intentional — format-only checks can't detect revoked or misconfigured keys that still match the prefix pattern.
 
-### 4. Gitignore
+### 4. Credential Chain: gh CLI + .env + hosts.yml
+
+The `gh` CLI has its own credential chain that can diverge from `.env`:
+
+**Layer 1 — `.env`:** Used by Hermes scripts and the Kimi client.
+**Layer 2 — `~/.config/gh/hosts.yml`:** Used by `gh auth` CLI for GitHub operations.
+**Layer 3 — macOS keyring:** Used by `gh` if `hosts.yml` is absent or empty.
+**Layer 4 — `~/.gitconfig` credential helpers:** Used by `git` for push/pull operations.
+
+**Pitfall (2026-05-27):** All four layers can hold *different* credentials simultaneously. When `git push` fails with 403:
+1. Check which layer `git` is actually using: `git credential fill` (simulates what git sees)
+2. Check `gh auth status --show-token` to see what `gh` resolves to
+3. If `gh` resolves to an old token, clear it: `gh auth logout` then `gh auth login --with-token`
+4. Check `~/.gitconfig` for duplicate `credential.helper` entries — Python's configparser will choke on them, and git may resolve the wrong one
+5. Write the full PAT into `hosts.yml` and `chmod 600` it
+
+**Fix sequence:**
+```bash
+gh auth logout
+gh auth login --with-token   # paste full PAT
+git config --global --unset-all credential.helper
+git config --global --add credential.helper '!gh auth git-credential'
+git push fork <branch>
+```
+
+### 5. Gitignore
 
 `.env`, `logs/*.jsonl`, `logs/*.json`, and `memory-palace/` must all be in `.gitignore`.
 
-### User Preferences (from session 2026-05-25)
+## Known Issues
 
-- **Don't chase missing keys during build** — if a key is claimed but not found, note it and move on. The user will resend when ready. Do not block the workflow waiting for verification.
-- **Build mode priority** — when the user says "just build the storage," stop logging decisions, stop searching for existing state, and focus on creating the artifact.
-- **No excessive decision logging** — if a decision framework already exists and the user has approved the direction, skip creating additional audit artifacts and proceed to implementation.
-- **Telegram alerting is a hard requirement** — the system is effectively blind without it. Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` to `.env` before declaring key management operational.
+### Credential write truncation (FIXED — new guard)
+- **2026-05-27:** A 93-char GitHub PAT was silently written as ~20 chars (`github...LP4U`). No error was raised. The `write_file` call reported success.
+- **Fix applied:** Post-write verification step added to all credential writes. Check actual file content and length immediately after writing.
+- **Prevention:** Never trust a write without a read-back verification. Add `--verify` flags to credential scripts.
 
-## Known Issues (2026-05-25 Audit)
+### Config/env var name mismatch
+- **2026-05-27:** `config.yaml` used `${OPENROUTER_KEY_1}` after rename to `${OPENROUTER_API_KEY}` in `.env`.
+- **Fix applied:** Grep-and-compare check added.
+- **Prevention:** When renaming an env var, grep all config files for the old name.
 
-### Test model coverage
-- **FIXED 2026-05-25:** `key_guardian.py` now tests actual model slugs used in routing, not generic per-provider ping
+### git config credential helper duplication
+- **2026-05-27:** `~/.gitconfig` had empty `helper=` lines plus gh helper lines, causing credential resolution ambiguity.
+- **Fix applied:** Cleaned to single `credential.https://github.com.helper=!gh auth git-credential` entries.
+- **Prevention:** Run `git config --global --list | grep credential` periodically for duplicates.
 
-### Dual health tracking (UNRESOLVED)
-- `circuit_breaker.py` and `model_routing.py` each maintain independent health state. They need to be unified — single source of truth in `logs/model_health.json`.
+### Kimi dual-key rotation
+- **2026-05-27:** Formalized dual-key rotation with 5-attempt exponential backoff.
+- Primary: `KIMI_API_KEY`, Secondary: `KIMI_API_KEY_2`
+- Rotation triggers: HTTP 401 or 429
+- Backoff: 1s → 2s → 4s → 20s → 60s with ±10% jitter
+- After success: reset to primary key
+- 3-day silence rule: only alert if 3 full days without successful access
+- Full spec: `KIMI_HANDLING_LOCKED.md`
 
-### Telegram alerting gaps
-- **`TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` missing from `.env`** — all alerting is currently silent. This is a hard blocker for operational key management.
-
-### Gateway integration
-- Key verification script updated to use runtime `os.environ` injection at call time, removing stale module-level `_load_env()` call.
-
-## Key Status (2026-05-25)
+## Key Status (2026-05-27)
 
 | Key | Status | HTTP | Notes |
 |-----|--------|------|-------|
-| DeepSeek | ✅ ACTIVE | 200 | New key `sk-bca...5661` pre-activated |
-| xAI/Grok | ✅ ACTIVE | 200 | `xai-RK...Vxbi` live |
-| OpenRouter | ✅ ACTIVE | 200 | Model slug fixed to `inclusionai/ring-2.6-1t` |
-| Kimi | ❌ DEAD | 401 | Key never found; cold standby |
+| DeepSeek | ✅ ACTIVE | 200 | v4-flash + v4-pro |
+| xAI/Grok | ✅ ACTIVE | 200 | grok-4.20-reasoning + grok-4.3 |
+| OpenRouter | ✅ ACTIVE | 200 | Renamed to `OPENROUTER_API_KEY`; Ring quality gate working |
+| Kimi | 🟡 ROTATION ACTIVE | 200 | Dual-key rotation. Balance: $24.97. See KIMI_HANDLING_LOCKED.md |
+| Anthropic | ⚠️ NOT CONFIGURED | — | `ANTHROPIC_API_KEY` not set in `.env` yet |
+| Ollama Cloud | 🟡 NETWORK BLOCKED | — | Key format valid, cloud unreachable |
+| GitHub PAT | ✅ INJECTED | — | 93 chars, `gh auth` re-login needed on this machine |
 
 ## Rotation & Recovery
 

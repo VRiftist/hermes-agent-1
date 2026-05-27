@@ -55,14 +55,14 @@
     "archived_at": null,
     "created_at": "2026-05-25T13:05:24.246845+00:00",
     "created_by": "agent",
-    "last_patched_at": "2026-05-25T17:38:18.272540+00:00",
-    "last_used_at": "2026-05-25T17:34:57.737941+00:00",
-    "last_viewed_at": "2026-05-25T17:34:57.736426+00:00",
-    "patch_count": 11,
+    "last_patched_at": "2026-05-27T16:44:03.313531+00:00",
+    "last_used_at": "2026-05-27T16:42:21.328255+00:00",
+    "last_viewed_at": "2026-05-27T16:42:21.327713+00:00",
+    "patch_count": 13,
     "pinned": false,
     "state": "active",
-    "use_count": 9,
-    "view_count": 9
+    "use_count": 11,
+    "view_count": 11
   },
   "model-consulting": {
     "archived_at": null,
@@ -76,6 +76,19 @@
     "state": "active",
     "use_count": 15,
     "view_count": 15
+  },
+  "operational-integrity": {
+    "archived_at": null,
+    "created_at": "2026-05-27T16:44:18.159411+00:00",
+    "created_by": "agent",
+    "last_patched_at": "2026-05-27T16:44:29.305663+00:00",
+    "last_used_at": "2026-05-27T16:44:43.354374+00:00",
+    "last_viewed_at": "2026-05-27T16:44:43.353806+00:00",
+    "patch_count": 1,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
   },
   "pricing-strategy": {
     "archived_at": null,
