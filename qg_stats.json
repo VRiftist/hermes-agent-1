@@ -1,0 +1,7 @@
+{
+  "total_responses": 0,
+  "enforcement_mode": "advisory",
+  "switchover_threshold": 100,
+  "quality_threshold": 5.0,
+  "last_updated": "2026-06-03T08:30:00Z"
+}
