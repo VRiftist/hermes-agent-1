@@ -1,0 +1,13 @@
+{
+  "last_beat": 1779902912.671089,
+  "last_task_check": 1779902651.921485,
+  "last_health_check": 0,
+  "current_task": null,
+  "completed_tasks": [],
+  "failed_tasks": [],
+  "idle_cycles": 2,
+  "total_completed": 0,
+  "last_status_message": "",
+  "gateway_restarts": 0,
+  "restart_hour_start": 12
+}

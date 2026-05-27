@@ -27,6 +27,9 @@ references:
   - references/2026-05-25-metal-benchmark-plan.md
   - references/routing-decision-tree.md
   - references/2026-05-25-model-specs-confirmed.md
+  - references/2026-05-27-model-selection-32gb.md
+scripts:
+  - scripts/bench_model.py
 ---
 
 # Inference Architecture (Updated 2026-05-25)

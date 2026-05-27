@@ -30,7 +30,7 @@
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-05-27T06:56:00.000000-05:00",
-      "next_run_at": "2026-05-27T11:51:00-05:00",
+      "next_run_at": "2026-05-27T12:30:00-05:00",
       "last_run_at": "2026-05-27T11:48:59.433966-05:00",
       "last_status": "error",
       "last_error": "Script exited with code 1\nstderr:\nTraceback (most recent call last):\n  File \"/Users/lumenhubai/.hermes/scripts/heartbeat_daemon.py\", line 55, in <module>\n    if not (SILENT_MODE and ONCE_FLAG):\n            ^^^^^^^^^^^\nNameError: name 'SILENT_MODE' is not defined",
@@ -47,5 +47,5 @@
       "profile": null
     }
   ],
-  "updated_at": "2026-05-27T11:48:59.436161-05:00"
+  "updated_at": "2026-05-27T12:28:14.402555-05:00"
 }
