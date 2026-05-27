@@ -1,0 +1,32 @@
+[Unit]
+Description=Hermes Heartbeat Daemon
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/gerald/.hermes/hermes-agent/venv/bin/python3 /home/gerald/.hermes/scripts/heartbeat_daemon.py --mode daemon
+WorkingDirectory=/home/gerald/.hermes
+Environment=HERMES_HOME=/home/gerald/.hermes
+Environment=PYTHONUNBUFFERED=1
+Environment=SILENT_MODE=1
+Restart=on-failure
+RestartSec=10
+
+# Resource limits (cgroup v2)
+MemoryMax=512M
+CPUQuota=50%
+
+# OOM policy
+OOMPolicy=kill
+
+# Logging
+StandardOutput=append:/home/gerald/.hermes/logs/heartbeat_daemon.stdout.log
+StandardError=append:/home/gerald/.hermes/logs/heartbeat_daemon.stderr.log
+
+# Kill entire process group on stop
+KillMode=process
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

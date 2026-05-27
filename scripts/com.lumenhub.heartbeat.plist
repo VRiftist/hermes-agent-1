@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+        Hermes Heartbeat Daemon — launchd plist
+        Replaces cron-based heartbeat_task_manager.py + heartbeat_monitor.py
+        with a single long-running daemon that:
+          - Polls memory palace for tasks
+          - Dispatches to 30B LLM
+          - Monitors gateway health
+          - Auto-restarts dead processes
+          - Reports status via Telegram
+
+        Install:
+          cp com.lumenhub.heartbeat.plist ~/Library/LaunchAgents/
+          launchctl load ~/Library/LaunchAgents/com.lumenhub.heartbeat.plist
+          launchctl start com.lumenhub.heartbeat
+
+        Uninstall:
+          launchctl stop com.lumenhub.heartbeat
+          launchctl unload ~/Library/LaunchAgents/com.lumenhub.heartbeat.plist
+    -->
+
+    <key>Label</key>
+    <string>com.lumenhub.heartbeat</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3</string>
+        <string>/Users/lumenhubai/.hermes/scripts/heartbeat_daemon.py</string>
+        <string>--mode</string>
+        <string>daemon</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>ExitTimeOut</key>
+    <integer>60</integer>
+
+    <key>AbandonProcessGroup</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/lumenhubai/.hermes/logs/heartbeat_daemon.stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/lumenhubai/.hermes/logs/heartbeat_daemon.stderr.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/lumenhubai/.hermes</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+        <key>HERMES_HOME</key>
+        <string>/Users/lumenhubai/.hermes</string>
+        <key>SILENT_MODE</key>
+        <string>1</string>
+    </dict>
+
+    <!-- Restart on crash with backoff -->
+    <key>ThrottleLimit</key>
+    <integer>3</integer>
+</dict>
+</plist>
