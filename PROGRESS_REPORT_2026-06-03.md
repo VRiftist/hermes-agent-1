@@ -10,7 +10,7 @@
 
 The Hermes agent stack is **operationally stable** with all core infrastructure plumbing complete. This session finished the loose ends from the prior sprint — including a critical board audit that uncovered 5 phantom entries in the original deployment discrepancy table.
 
-- ✅ **Fixed heartbeat `--once` timeout** — `MAX_TASK_RUNTIME` now capped to 90s in cron mode
+|- ✅ **Fixed heartbeat `--once` timeout** — `MAX_TASK_RUNTIME` now capped to 65s in cron mode (typo in `" --once"` flag was root cause; ~55s headroom after subprocess for save_state)
 - ✅ **Fixed cron batch limit** — `TASK_BATCH_LIMIT` capped to 1 in `--once` mode
 - ✅ **Kimi graceful degradation** — `model_routing.py` skips Kimi when no valid API key loaded
 - ✅ **All patched files compile clean** — `kimi_client.py`, `heartbeat_task_manager.py`, `model_routing.py`
@@ -29,8 +29,9 @@ The Hermes agent stack is **operationally stable** with all core infrastructure 
 
 ### Heartbeat Timeout Fix
 - **Root cause:** `heartbeat_task_manager.py` in `--once` mode used `MAX_TASK_RUNTIME=3600`. The cron framework kills `--once` subprocesses at 120s, but the script didn't know this and ran until OS SIGKILL — no cleanup, no state save.
-- **Fix:** When `ONCE_FLAG` is true, `MAX_TASK_RUNTIME` capped to **90s** and `TASK_BATCH_LIMIT` to **1**. Gives ~30s headroom for teardown within the 120s framework wall.
-- **Result:** Previous cron run shows timeout error (fix not yet active). Next `*/3` cycle will use new limits.
+|- **Fix:** When `ONCE_FLAG` is true, `MAX_TASK_RUNTIME` capped to **65s** and `TASK_BATCH_LIMIT` to **1**. Gives ~50s headroom for teardown within the 120s framework wall.
+|- **Critical bug found & fixed:** Initial patch had a typo — `" --once"` (leading space) — so `ONCE_FLAG` was **always False** and the timeout cap was dead code. Corrected to `"--once"`.
+|- **Result:** Previous cron run shows timeout error (running old code). Next `*/3` cycle will use the 65s cap. Manual test confirmed cycle completes in <1s idle, ~65s max with tasks.
 
 ### Kimi Graceful Skip in Model Routing
 - **Root cause:** `model_routing.py` included `moonshot:kimi-v1-8k` in multiple category candidate lists. When `.env` has no `KIMI_API_KEY`, the client returns `NO_KIMI_KEY` errors.
@@ -171,7 +172,7 @@ Not required for current pipeline (Mac→Linux outbound-only). Low priority.
 1. **Context Trimming Philosophy** — 6-tier priority, T0 identity never trimmed, bulk deletion only
 2. **Memory Palace Strategy** — Episodic + Semantic + Working, auto-prune at session boundary
 3. **Quality Gate** — Option B (advisory 100 → auto-enforce)
-4. **Heartbeat** — Cron `--once` mode, */3 frequency, 90s task cap
+| 4. **Heartbeat** — Cron `--once` mode, */3 frequency, 65s task cap |
 5. **Kimi** — Graceful skip when no key; dual-key rotation ready when key arrives
 6. **SSH Topology** — Mac→Linux outbound-only, Linux never reaches back
 7. **Kimi circuit breaker** — 3 consecutive failures → 5 min cooldown → auto-retry
