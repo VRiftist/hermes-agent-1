@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 AKASHIC ENGINE — Structured Memory Upgrade
 Replaces flat 2200-char limit with multi-layer memory system.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """FULL INFRASTRUCTURE AUDIT + CONSULT/MERGE TOP-LEVEL ASSESSMENT"""
 import sys, os, json, time
 sys.path.insert(0, "/Users/lumenhubai/.hermes/scripts")

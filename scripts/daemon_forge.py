@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES DAEMON FORGING — Create temporary sub-agents for specific tasks
 """
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     # Execute it
     result = forge.execute_daemon(daemon_id, "Review this code: def foo(): pass", "")
-    print(f"  Execution: turns_used={forge.active_daemons_dir}")
+    print(f"  Execution: turns_used={forge.ACTIVE_DAEMONS_DIR}")
     print(f"  Status: {result.get('status')}")
 
     # List active

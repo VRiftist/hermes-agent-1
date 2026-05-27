@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES COST TRACKING
 Monitors spend across all cloud providers in real-time.

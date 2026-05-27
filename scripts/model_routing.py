@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES MODEL ROUTING ENGINE
 Decisive model selection logic — the "when to use what" brain.
@@ -411,6 +411,7 @@ def select_model(task_category: str, prompt_text: str,
     candidates = candidates + [m for m in fallback_order if m not in candidates]
 
     suitable = []
+    ring_models = {"openrouter:ring-2.6-1t", "openrouter:ring-2"}
     for model_key in candidates:
         if model_key not in MODELS:
             continue
@@ -424,14 +425,11 @@ def select_model(task_category: str, prompt_text: str,
                     continue
             except ImportError:
                 continue
-
         # Health check
         if not check_health(cfg["provider"], cfg["model"]):
             continue
-
-# Budget check (input cost only, we don't know output length yet)
+        # Budget check (input cost only, we don't know output length yet)
         # Skip cost for local models (free), internal calls, or Ring (orchestrator — never budget-gated)
-        ring_models = {"openrouter:ring-2.6-1t", "openrouter:ring-2"}
         is_ring = model_key in ring_models
         if cfg["cost_per_1k_input"] > 0 and effective_budget <= 0 and not is_ring:
             continue

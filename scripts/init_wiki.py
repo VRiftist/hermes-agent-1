@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """Initialize the Hermes wiki (Karpathy pattern) and re-run full audit."""
 import os, sys
 sys.path.insert(0, "/Users/lumenhubai/.hermes/scripts")

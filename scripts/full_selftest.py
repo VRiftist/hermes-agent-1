@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """Full self-test suite — all Hermes modules."""
 import sys, os, yaml
 sys.path.insert(0, "/Users/lumenhubai/.hermes/scripts")

@@ -33,6 +33,11 @@ auth.lock
 # Build artifacts
 bin/
 cache/
+__pycache__/
+*.pyc
+
+# Cron job output (runtime logs)
+cron/output/
 
 # Channel data
 channel_directory.json

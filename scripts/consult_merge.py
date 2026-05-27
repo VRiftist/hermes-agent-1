@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES CONSULT/MERGE ORCHESTRATOR
 The main protocol implementation — ties together:

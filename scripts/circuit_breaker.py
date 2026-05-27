@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES CIRCUIT BREAKER & HEALTH MONITOR
 Detects dead models, manages failover, and restores models when healthy.

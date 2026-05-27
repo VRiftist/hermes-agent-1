@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Hermes Gateway Integration — Context Orchestrator Bridge
 This is the glue between the Hermes CLI gateway and context_orchestrator.py.

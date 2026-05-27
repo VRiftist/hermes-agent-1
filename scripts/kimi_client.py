@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 KIMI DIRECT CLIENT — Moonshot AI API with dual-key rotation & exponential backoff
 Designed for the "temperamental artist" — high usage causes rate limits,

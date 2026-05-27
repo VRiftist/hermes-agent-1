@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 CONTEXT ORCHESTRATOR — Active context window management for Hermes Agent.
 

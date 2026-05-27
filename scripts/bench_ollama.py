@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Ollama API context window benchmark for Mac (Apple Silicon).
 Streams responses properly, tracks memory, finds real ceiling.

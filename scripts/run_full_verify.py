@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 import os, sys
 sys.path.insert(0, "/Users/lumenhubai/.hermes/scripts")
 sys.path.insert(0, "/Users/lumenhubai/.hermes/hermes-agent")

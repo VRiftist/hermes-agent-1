@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Context window benchmark — starts at a high context size and steps down.
 Measures: success/failure, latency, approximate tokens processed.

@@ -46,36 +46,6 @@ TASK_STATE_PATH = HERMES_HOME / "heartbeat_task_state.json"
 LOG_DIR = HERMES_HOME / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# ─── Logging ────────────────────────────────────────────────────────────────────────
-# When SILENT_MODE is active, suppress stdout/stderr logging for cron (--mode once)
-# to avoid routine output captured by the cron framework.
-_LOG_LEVEL = logging.INFO
-_LOG_HANDLERS = [logging.FileHandler(LOG_DIR / "heartbeat_daemon.log")]
-
-if not (SILENT_MODE and ONCE_FLAG):
-    _LOG_HANDLERS.append(logging.StreamHandler(sys.stdout))
-else:
-    _LOG_LEVEL = logging.WARNING
-
-logging.basicConfig(
-    level=_LOG_LEVEL,
-    format="%(asctime)s [HEARTBEAT] %(levelname)-8s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=_LOG_HANDLERS,
-)
-logger = logging.getLogger("heartbeat")
-
-# ─── Config ─────────────────────────────────────────────────────────────────
-HEARTBEAT_INTERVAL = int(os.environ.get("HEARTBEAT_INTERVAL", "120"))
-TASK_CHECK_INTERVAL = int(os.environ.get("TASK_CHECK_INTERVAL", "300"))
-STALE_THRESHOLD = int(os.environ.get("STALE_THRESHOLD", "240"))
-TELEGRAM_SEND_URL = os.environ.get("TELEGRAM_SEND_URL", "")
-SILENT_MODE = bool(int(os.environ.get("SILENT_MODE", "0")))
-TASK_BATCH_LIMIT = int(os.environ.get("TASK_BATCH_LIMIT", "1"))
-MAX_TASK_RUNTIME = int(os.environ.get("MAX_TASK_RUNTIME", "3600"))
-GATEWAY_CHECK_INTERVAL = int(os.environ.get("GATEWAY_CHECK_INTERVAL", "60"))
-MAX_RESTARTS_PER_HOUR = int(os.environ.get("MAX_RESTARTS_PER_HOUR", "3"))
-
 # ─── CLI ────────────────────────────────────────────────────────────────────
 
 def parse_args():
@@ -100,9 +70,47 @@ ONCE_FLAG = ARGS.mode == "once" or (ARGS.mode == "auto" and not sys.stdin.isatty
 DAEMON_FLAG = ARGS.mode == "daemon" or (ARGS.mode == "auto" and sys.stdin.isatty())
 
 if ONCE_FLAG:
-    MAX_TASK_RUNTIME = min(MAX_TASK_RUNTIME, 65)
-    TASK_BATCH_LIMIT = min(TASK_BATCH_LIMIT, 1)
+    MAX_TASK_RUNTIME_OVERRIDE = 65
+    TASK_BATCH_LIMIT_OVERRIDE = 1
+else:
+    MAX_TASK_RUNTIME_OVERRIDE = None
+    TASK_BATCH_LIMIT_OVERRIDE = None
 
+# ─── Config ─────────────────────────────────────────────────────────────────
+HEARTBEAT_INTERVAL = int(os.environ.get("HEARTBEAT_INTERVAL", "120"))
+TASK_CHECK_INTERVAL = int(os.environ.get("TASK_CHECK_INTERVAL", "300"))
+STALE_THRESHOLD = int(os.environ.get("STALE_THRESHOLD", "240"))
+TELEGRAM_SEND_URL = os.environ.get("TELEGRAM_SEND_URL", "")
+SILENT_MODE = bool(int(os.environ.get("SILENT_MODE", "0")))
+TASK_BATCH_LIMIT = int(os.environ.get("TASK_BATCH_LIMIT", "1"))
+MAX_TASK_RUNTIME = int(os.environ.get("MAX_TASK_RUNTIME", "3600"))
+GATEWAY_CHECK_INTERVAL = int(os.environ.get("GATEWAY_CHECK_INTERVAL", "60"))
+MAX_RESTARTS_PER_HOUR = int(os.environ.get("MAX_RESTARTS_PER_HOUR", "3"))
+
+# Apply once-mode overrides
+if MAX_TASK_RUNTIME_OVERRIDE is not None:
+    MAX_TASK_RUNTIME = min(MAX_TASK_RUNTIME, MAX_TASK_RUNTIME_OVERRIDE)
+if TASK_BATCH_LIMIT_OVERRIDE is not None:
+    TASK_BATCH_LIMIT = min(TASK_BATCH_LIMIT, TASK_BATCH_LIMIT_OVERRIDE)
+
+# ─── Logging ────────────────────────────────────────────────────────────────────────
+# When SILENT_MODE is active, suppress stdout/stderr logging for cron (--mode once)
+# to avoid routine output captured by the cron framework.
+_LOG_LEVEL = logging.INFO
+_LOG_HANDLERS = [logging.FileHandler(LOG_DIR / "heartbeat_daemon.log")]
+
+if not (SILENT_MODE and ONCE_FLAG):
+    _LOG_HANDLERS.append(logging.StreamHandler(sys.stdout))
+else:
+    _LOG_LEVEL = logging.WARNING
+
+logging.basicConfig(
+    level=_LOG_LEVEL,
+    format="%(asctime)s [HEARTBEAT] %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=_LOG_HANDLERS,
+)
+logger = logging.getLogger("heartbeat")
 
 # ─── State Management ───────────────────────────────────────────────────────
 
@@ -258,7 +266,7 @@ def get_pending_tasks() -> list:
         return []
 
 
-# ─── Telegram ───────────────────────────────────────────────────────────────
+# ─── Telegram ────────────────────────────────────────────────────────────────
 
 def send_telegram_status(message: str, force: bool = False):
     if not TELEGRAM_SEND_URL:

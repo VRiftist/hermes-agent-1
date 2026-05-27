@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES STRUCTURED LOGGING ENGINE
 JSONL logs of every prompt, completion, routing decision, tool call, and error.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Mac M2 Pro GPU benchmark — find the best coder model for Apple Silicon.
 Tests via MLX (GPU) and compares quality + speed across coder models.

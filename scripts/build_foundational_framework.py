@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 Hermes Foundational Framework — Authoritative Build
 Captures ALL design decisions, metrics, methodology, and tuning parameters.
@@ -523,7 +523,7 @@ w("""
 
 ```python
 def classify_task(input_text: str) -> dict:
-    """Classifies the task and recommends model chain."""
+    \"\"\"Classifies the task and recommends model chain.\"\"\"
     
     categories = {
         "code_generation": {

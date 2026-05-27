@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 key_guardian.py — Daily key health check + Telegram alert.
 Scans ~/.hermes/.env, tests each key against its provider, reports dead/missing.

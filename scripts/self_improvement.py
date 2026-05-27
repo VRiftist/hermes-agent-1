@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES SELF-IMPROVEMENT ENGINE
 Captures feedback, tracks prompt performance, and proposes improvements.

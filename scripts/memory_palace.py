@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """
 HERMES MEMORY PALACE — Persistent Memory Engine
 Replaces fragile in-memory 2200 char limit with structured SQLite persistence.

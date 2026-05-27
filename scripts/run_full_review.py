@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/Users/lumenhubai/.hermes/hermes-agent/venv/bin/python3
 """Full Blueprint Multi-Model Review — LOCAL-FIRST with cloud fallback.
 
 Tries cloud API first, falls back to local Ollama if keys are missing/broken.
