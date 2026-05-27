@@ -16,8 +16,11 @@
 - **Ollama bypass:** `kimi-k2.5:cloud` via OLLAMA_API_KEY eliminates the Moonshot API entirely
 
 ### 3. Quality Gate Enforcement Mode
-- **Status:** Ring scores but doesn't block anything
-- **Decision pending from Gerald:** Option B — advisory for 100 responses, then auto-reject
+|- **Status:** ✅ IMPLEMENTED — Option B live (advisory 100 → auto-reject)
+|- `gateway_integration.py`: Option B logic active
+|- `qg_stats.json`: Persistent state tracker created
+|- `base.py`: All 3 outcomes handled (reject/advisory/route)
+|- Ring scores and blocks responses below 5.0/10 after 100-response ramp
 
 ## 🟡 Known Issues (Non-Blocking)
 
@@ -37,12 +40,13 @@
 - If persistent: add circuit breaker (3 timeouts → skip for 5 min)
 
 ## ✅ Resolved (Last 7 Days)
-- Orphan process cleanup (killed 24+ PIDs, recovered ~1.5GB)
-- Heartbeat monitor daemon → cron mode (no more crash loops)
-- Night council KeyError fix
-- Config.yaml restructure (stale parse errors eliminated)
-- Context orchestrator shims restored (audit L2 passing)
-- Branding correction pass (Ring → LumenHub Approved™ across all docs)
+|- Orphan process cleanup (killed 24+ PIDs, recovered ~1.5GB)
+|- Heartbeat monitor daemon → cron mode (no more crash loops)
+|- Night council KeyError fix
+|- Config.yaml restructure (stale parse errors eliminated)
+|- Context orchestrator shims restored (audit L2 passing)
+|- Branding correction pass (Ring → LumenHub Approved™ across all docs)
+|- **Heartbeat `--once` timeout fix** — typo in flag check (`" --once"` → `"--once"`) was the root cause; MAX_TASK_RUNTIME now capped to 65s in cron mode, cycle verified at <1s idle
 
 ## ⬜ Recurring Pain Points (Track Here)
 | Issue | Frequency | Last Occurrence | Root Cause |
