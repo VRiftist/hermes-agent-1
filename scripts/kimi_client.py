@@ -12,6 +12,8 @@ import urllib.error
 
 sys.path.insert(0, os.path.expanduser("~/.hermes/scripts"))
 
+from api_error_handler import classify_api_error
+
 KIMI_BASE_URL = "https://api.moonshot.cn/v1"
 KIMI_MODEL = "moonshot-v1-8k"
 
@@ -43,6 +45,11 @@ _keys = _get_keys()
 _primary_key = _keys[0] if len(_keys) > 0 else None
 _secondary_key = _keys[1] if len(_keys) > 1 else None
 _active_key_index = 0  # 0 = primary, 1 = secondary
+
+
+def is_available() -> bool:
+    """Check if Kimi can be used right now (has at least one valid key loaded)."""
+    return bool(_primary_key and _primary_key not in ("***", ""))
 
 
 def _get_active_key() -> str:

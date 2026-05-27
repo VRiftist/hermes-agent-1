@@ -34,40 +34,30 @@ MODELS = {
         "strengths": ["fast", "local", "cheap", "good_for_simple"],
         "max_tokens": 4096,
     },
-    "mac-ollama:qwen3:14b": {
+    "mac-ollama:qwen3-coder:30b-a3b-q4_k_M": {
         "provider": "mac-ollama",
-        "model": "qwen3:14b",
+        "model": "qwen3-coder:30b-a3b-q4_k_M",
         "context_length": 16384,
         "cost_per_1k_input": 0.0,
         "cost_per_1k_output": 0.0,
-        "latency_estimate_ms": 120,
-        "strengths": ["balanced", "local", "code", "general"],
+        "latency_estimate_ms": 800,
+        "strengths": ["code_generation", "reasoning", "review", "long_context", "best_local"],
         "max_tokens": 8192,
     },
-    "mac-ollama:qwen3-coder": {
-        "provider": "mac-ollama",
-        "model": "qwen3-coder",
+    "linux-ollama:qwen3:8b": {
+        "provider": "linux-ollama",
+        "model": "qwen3:8b",
         "context_length": 32768,
         "cost_per_1k_input": 0.0,
         "cost_per_1k_output": 0.0,
-        "latency_estimate_ms": 200,
-        "strengths": ["code_generation", "reasoning", "review", "long_context"],
-        "max_tokens": 16384,
-    },
-    "linux-ollama:qwen3-14b-128k": {
-        "provider": "linux-ollama",
-        "model": "qwen3-14b-128k:latest",
-        "context_length": 131072,
-        "cost_per_1k_input": 0.0,
-        "cost_per_1k_output": 0.0,
-        "latency_estimate_ms": 300,
-        "strengths": ["long_context", "deep_analysis", "large_files"],
-        "max_tokens": 16384,
+        "latency_estimate_ms": 150,
+        "strengths": ["fast", "efficient", "good_context_density", "local"],
+        "max_tokens": 8192,
     },
     "deepseek:deepseek-v4-flash": {
         "provider": "deepseek",
         "model": "deepseek-v4-flash",
-        "context_length": 32768,
+        "context_length": 1000000,  # 1M token context on DeepSeek direct API
         "cost_per_1k_input": 0.14,
         "cost_per_1k_output": 0.28,
         "latency_estimate_ms": 800,
@@ -94,10 +84,40 @@ MODELS = {
         "strengths": ["creative", "synthesis", "architecture", "strategic"],
         "max_tokens": 4096,
     },
+    "openrouter:grok-4.3": {
+        "provider": "openrouter",
+        "model": "grok-4.3",
+        "context_length": 1000000,
+        "cost_per_1k_input": 0.00000125,
+        "cost_per_1k_output": 0.0000025,
+        "latency_estimate_ms": 3000,
+        "strengths": ["creative", "reasoning", "code_review", "long_context", "best_value"],
+        "max_tokens": 32768,
+    },
+    "anthropic:claude-sonnet-4-6": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "context_length": 200000,  # 200K token context on Claude 4 Sonnet
+        "cost_per_1k_input": 3.0,
+        "cost_per_1k_output": 15.0,
+        "latency_estimate_ms": 4000,
+        "strengths": ["deep_reasoning", "plot_analysis", "character_work", "long_context", "editorial_review"],
+        "max_tokens": 8192,
+    },
+    "anthropic:claude-opus-4-7": {
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "context_length": 100000,
+        "cost_per_1k_input": 15.0,
+        "cost_per_1k_output": 75.0,
+        "latency_estimate_ms": 6000,
+        "strengths": ["deepest_reasoning", "complex_analysis", "research", "premium_editorial"],
+        "max_tokens": 4096,
+    },
     "openrouter:ring-2.6-1t": {
         "provider": "openrouter",
         "model": "ring-2.6-1t",
-        "context_length": 16384,
+        "context_length": 1000000,  # 1M token context via OpenRouter
         "cost_per_1k_input": 0.88,
         "cost_per_1k_output": 0.88,
         "latency_estimate_ms": 2000,
@@ -114,6 +134,36 @@ MODELS = {
         "strengths": ["aesthetic", "creative_judgment", "visual_reasoning", "multilingual"],
         "max_tokens": 2048,
         "direct": True,  # uses kimi_client.py, NOT openrouter proxy
+    },
+    "ollama-provider:qwen3-coder:30b-a3b-q4_k_M": {
+        "provider": "ollama-provider",
+        "model": "qwen3-coder:30b-a3b-q4_k_M",
+        "context_length": 16384,
+        "cost_per_1k_input": 0.0,  # free tier / included in subscription
+        "cost_per_1k_output": 0.0,
+        "latency_estimate_ms": 2000,
+        "strengths": ["code_generation", "reasoning", "review", "cloud_backup_local_30b"],
+        "max_tokens": 8192,
+    },
+    "ollama-provider:llama3.1-70b": {
+        "provider": "ollama-provider",
+        "model": "llama3.1-70b",
+        "context_length": 131072,
+        "cost_per_1k_input": 0.0,
+        "cost_per_1k_output": 0.0,
+        "latency_estimate_ms": 3000,
+        "strengths": ["reasoning", "long_context", "analysis", "strong_general"],
+        "max_tokens": 4096,
+    },
+    "ollama-provider:llama3.1-8b": {
+        "provider": "ollama-provider",
+        "model": "llama3.1-8b",
+        "context_length": 32768,
+        "cost_per_1k_input": 0.0,
+        "cost_per_1k_output": 0.0,
+        "latency_estimate_ms": 800,
+        "strengths": ["fast", "efficient", "cheap", "good_context_density"],
+        "max_tokens": 8192,
     },
 }
 
@@ -232,40 +282,104 @@ def get_task_size(user_message: str) -> str:
 
 # Preference order: local first, then cloud by capability match
 PREFERENCE_ORDER = [
+    "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
     "mac-ollama:qwen3:8b",
-    "mac-ollama:qwen3-coder",
-    "mac-ollama:qwen3:14b",
-    "linux-ollama:qwen3-14b-128k",
+    "linux-ollama:qwen3:8b",
+    "ollama-provider:qwen3-coder:30b-a3b-q4_k_M",  # cloud backup for local 30B
+    "ollama-provider:llama3.1-70b",
     "deepseek:deepseek-v4-flash",
     "deepseek:deepseek-v4-pro",
     "x-ai:grok-4.20-reasoning",
+    "openrouter:grok-4.3",
     "moonshot:kimi-v1-8k",
     "openrouter:ring-2.6-1t",
 ]
 
+# Internal-use preference: best models first for consult/merge/critique
+INTERNAL_PREFERENCE_ORDER = [
+    "openrouter:ring-2.6-1t",           # quality gate — always available for final review
+    "x-ai:grok-4.20-reasoning",
+    "openrouter:grok-4.3",         # board member — creative/lateral synthesis
+    "anthropic:claude-opus-4-7",        # board member — deepest reasoning, premium editorial
+    "anthropic:claude-sonnet-4-6",      # board member — plot/character analysis, long context
+    "deepseek:deepseek-v4-pro",         # premium cloud deep reasoning
+    "deepseek:deepseek-v4-flash",       # board member — fast cloud
+    "moonshot:kimi-v1-8k",              # board member — aesthetic/creative judgment
+    "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",  # local 30B coder (free, fastest turnaround)
+    "ollama-provider:qwen3-coder:30b-a3b-q4_k_M",  # cloud 30B backup
+    "ollama-provider:llama3.1-70b",     # cloud 70B generalist
+    "linux-ollama:qwen3:8b",            # linux local fallback
+    "mac-ollama:qwen3:8b",              # mac local fallback
+    "ollama-provider:llama3.1-8b",      # cloud 8B fallback
+]
+
 # Best model for each task category
 CATEGORY_BEST = {
-    "code_generation": ["mac-ollama:qwen3-coder", "mac-ollama:qwen3:14b", "deepseek:deepseek-v4-flash"],
-    "reasoning": ["mac-ollama:qwen3-coder", "deepseek:deepseek-v4-pro", "x-ai:grok-4.20-reasoning"],
-    "research": ["linux-ollama:qwen3-14b-128k", "deepseek:deepseek-v4-flash"],
-    "creative": ["moonshot:kimi-v1-8k", "x-ai:grok-4.20-reasoning", "mac-ollama:qwen3:14b"],
-    "review": ["openrouter:ring-2.6-1t", "deepseek:deepseek-v4-pro", "mac-ollama:qwen3-coder"],
-    "tool_use": ["mac-ollama:qwen3:8b", "mac-ollama:qwen3:14b"],
-    "general": ["mac-ollama:qwen3:14b", "mac-ollama:qwen3:8b"],
+    "code_generation": [
+        "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
+        "ollama-provider:qwen3-coder:30b-a3b-q4_k_M",  # cloud backup
+        "deepseek:deepseek-v4-flash",
+        "mac-ollama:qwen3:8b",
+    ],
+    "reasoning": [
+        "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
+        "ollama-provider:llama3.1-70b",
+        "deepseek:deepseek-v4-pro",
+        "x-ai:grok-4.20-reasoning",
+    "openrouter:grok-4.3",
+    ],
+    "research": [
+        "ollama-provider:llama3.1-70b",
+        "linux-ollama:qwen3:8b",
+        "deepseek:deepseek-v4-flash",
+    ],
+    "creative": [
+        "moonshot:kimi-v1-8k",
+        "x-ai:grok-4.20-reasoning",
+        "openrouter:grok-4.3",
+        "ollama-provider:llama3.1-8b",
+        "mac-ollama:qwen3:8b",
+    ],
+    "review": [
+        # Best coder (free local) — first choice
+        "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
+        "ollama-provider:qwen3-coder:30b-a3b-q4_k_M",  # cloud backup
+        # Cloud coder alternatives
+        "deepseek:deepseek-v4-pro",
+        "ollama-provider:llama3.1-70b",
+        # Board members — consult chain (Claude + Kimi + Grok + Ring)
+        "anthropic:claude-sonnet-4-6",    # board — plot/character/editorial
+        "moonshot:kimi-v1-8k",            # board — aesthetic/creative judgment
+        "x-ai:grok-4.20-reasoning",
+        "openrouter:grok-4.3",       # board — creative/lateral synthesis
+        "openrouter:ring-2.6-1t",         # quality gate — ALWAYS LAST, mandatory
+    ],
+    "tool_use": [
+        "mac-ollama:qwen3:8b",
+        "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
+    ],
+    "general": [
+        "mac-ollama:qwen3:8b",
+        "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
+    ],
 }
 
 # Reasoning models that get "think harder" treatment
 REASONING_MODELS = {
     "deepseek:deepseek-v4-pro",
+    "anthropic:claude-opus-4-7",
+    "anthropic:claude-sonnet-4-6",
     "x-ai:grok-4.20-reasoning",
+    "openrouter:grok-4.3",
     "openrouter:ring-2.6-1t",
-    "mac-ollama:qwen3-coder",
+    "mac-ollama:qwen3-coder:30b-a3b-q4_k_M",
 }
 
 
 def select_model(task_category: str, prompt_text: str,
                  history_length: int = 0, budget_usd: float = 1.0,
-                 force_provider: str = None, force_model: str = None) -> dict:
+                 force_provider: str = None, force_model: str = None,
+                 is_internal: bool = False) -> dict:
     """
     Main routing decision. Returns model config dict.
 
@@ -273,9 +387,9 @@ def select_model(task_category: str, prompt_text: str,
     1. If force_provider/force_model specified → bypass classification, use directly
     2. Task category → best candidates
     3. Filter by health (circuit breaker)
-    4. Filter by budget
+    4. Filter by budget (internal calls skip budget checks)
     5. Check context window fits history
-    6. Select cheapest healthy option
+    6. Select best available: internal→premium-first, external→cheap-first
     """
     # Forced override: bypass all classification and health checks
     if force_provider and force_model:
@@ -287,10 +401,14 @@ def select_model(task_category: str, prompt_text: str,
             if cfg["provider"] == force_provider:
                 return cfg
 
+    # Internal calls: skip budget constraints, prefer premium models
+    effective_budget = 9999.0 if is_internal else budget_usd
+
     candidates = list(CATEGORY_BEST.get(task_category, CATEGORY_BEST["general"]))
 
     # Add fallback chain for resilience
-    candidates = candidates + [m for m in PREFERENCE_ORDER if m not in candidates]
+    fallback_order = INTERNAL_PREFERENCE_ORDER if is_internal else PREFERENCE_ORDER
+    candidates = candidates + [m for m in fallback_order if m not in candidates]
 
     suitable = []
     for model_key in candidates:
@@ -298,13 +416,24 @@ def select_model(task_category: str, prompt_text: str,
             continue
         cfg = MODELS[model_key]
 
+        # Skip Kimi if no valid API key is loaded
+        if model_key == "moonshot:kimi-v1-8k":
+            try:
+                from kimi_client import is_available as _kimi_ok
+                if not _kimi_ok():
+                    continue
+            except ImportError:
+                continue
+
         # Health check
         if not check_health(cfg["provider"], cfg["model"]):
             continue
 
-        # Budget check (input cost only, we don't know output length yet)
-        # Skip cost for local models (free)
-        if cfg["cost_per_1k_input"] > 0 and budget_usd <= 0:
+# Budget check (input cost only, we don't know output length yet)
+        # Skip cost for local models (free), internal calls, or Ring (orchestrator — never budget-gated)
+        ring_models = {"openrouter:ring-2.6-1t", "openrouter:ring-2"}
+        is_ring = model_key in ring_models
+        if cfg["cost_per_1k_input"] > 0 and effective_budget <= 0 and not is_ring:
             continue
 
         # Context window check
@@ -321,13 +450,15 @@ def select_model(task_category: str, prompt_text: str,
                 if check_health(cfg["provider"], cfg["model"]):
                     return cfg
         # Last resort: use whatever has the longest context
-        return MODELS["mac-ollama:qwen3:14b"]
+        return MODELS["mac-ollama:qwen3:8b"]
 
     suitable.sort(key=lambda c: (
         0 if c in [m for m in CATEGORY_BEST.get(task_category, [])
                    if m in MODELS] else 1,  # category-match first
-        0 if "ollama" in c["provider"] else 1,  # then local
-        c["cost_per_1k_input"]  # then cheapest
+        0 if (is_internal and "ollama" not in c["provider"])
+             or (not is_internal and "ollama" in c["provider"]) else 1,
+        # For internal: premium models first; for external: local/cheap first
+        -(c["cost_per_1k_input"]) if is_internal else c["cost_per_1k_input"],
     ))
 
     # Resource guard: check top candidates for heavy-model readiness
