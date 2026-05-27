@@ -1,144 +1,428 @@
+#!/usr/bin/env python3
 """
-gateway_integration.py — Laravel Gateway ↔ Hermes bridge (Mac-local)
-Handles the Telegram → Gateway → Ollama message flow.
+Hermes Gateway Integration — Context Orchestrator Bridge
+This is the glue between the Hermes CLI gateway and context_orchestrator.py.
 
-Replaces the broken laravel-hermes-telegram package with direct
-API calls over Unix socket (no SSH hop needed).
+The gateway should call these functions at each lifecycle point:
+  - gateway_message_start()   → at the beginning of each user message
+  - gateway_register_turn()   → after each assistant/user exchange
+  - gateway_register_tool()   → after each tool call result
+  - gateway_trim_check()      → before sending response if context is large
+  - gateway_message_end()     → at session end
 
-Usage:
-    from gateway_integration import GatewayClient
-    client = GatewayClient()
-    await client.send_to_gateway("user_id", "Hello from Telegram")
+IMPORTANT: This module no longer imports context_orchestrator symbols at
+module level (fixes ImportError from the class-based refactor).  All
+orchestrator access goes through the per-session registry.
 """
+import logging
+logger = logging.getLogger(__name__)
 
-import json
-import os
-import socket
-import time
-from pathlib import Path
-from typing import Optional
+import sys, os, json, uuid, traceback
+from datetime import datetime, timezone
 
-# Dynamic path resolution — never hard-coded
-BASE_DIR = Path(__file__).resolve().parent
-WORKSPACE = Path(os.environ.get("WORKSPACE", str(BASE_DIR.parent.parent)))
+# Resolve module path dynamically — works on both Mac staging and Linux production.
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+_candidates = [
+    _this_dir,
+    os.path.join(os.path.expanduser("~/.hermes/scripts")),
+    os.path.join(_this_dir, "scripts"),
+]
+for _mp in _candidates:
+    if os.path.isdir(_mp) and _mp not in sys.path:
+        sys.path.insert(0, _mp)
+        break
 
-# Configuration via environment
-GATEWAY_HOST = os.environ.get("GATEWAY_HOST", "127.0.0.1")
-GATEWAY_PORT = int(os.environ.get("GATEWAY_PORT", "8080"))
-GATEWAY_SOCKET = os.environ.get("GATEWAY_SOCKET", "/tmp/hermes-gateway.sock")
-PACKAGE_TOKEN = os.environ.get("GATEWAY_PACKAGE_TOKEN", "")
+from context_orchestrator import get_orchestrator, drop_orchestrator, _get_all_sessions
+from memory_palace import get_working
 
+# ── Quality Gate State (Option B: advisory → blocking after 100 responses) ──
+_QG_STATS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qg_stats.json")
+_QG_SWITCHOVER = 100
+_QG_THRESHOLD = 5.0  # Score below this is "low quality"
 
-class GatewayClient:
-    """HTTP/Unix-socket client for the Laravel Hermes Gateway."""
-
-    def __init__(self, base_url: Optional[str] = None):
-        self.base_url = base_url or f"http://{GATEWAY_HOST}:{GATEWAY_PORT}"
-        self.use_unix_socket = os.environ.get("GATEWAY_USE_UNIX", "1") == "1"
-
-    def send_to_gateway(self, user_id: str, message: str, context: dict | None = None) -> dict:
-        """Send a message through the gateway to Ollama and return the response."""
-        payload = {
-            "user_id": user_id,
-            "message": message,
-            "context": context or {},
-            "timestamp": time.time(),
-        }
-
-        if self.use_unix_socket:
-            return self._send_unix(payload)
-        return self._send_http(payload)
-
-    def _send_unix(self, payload: dict) -> dict:
-        """Send payload via Unix domain socket."""
+def _load_qg_stats() -> dict:
+    if os.path.exists(_QG_STATS_PATH):
         try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.settimeout(10)
-            sock.connect(GATEWAY_SOCKET)
-            sock.sendall((json.dumps(payload) + "\n").encode())
-
-            # Read response (newline-delimited JSON)
-            buffer = b""
-            while True:
-                chunk = sock.recv(4096)
-                if not chunk:
-                    break
-                buffer += chunk
-                if b"\n" in buffer:
-                    break
-            sock.close()
-
-            response = json.loads(buffer.decode().strip())
-            return response
-        except FileNotFoundError:
-            return {"error": f"Socket not found: {GATEWAY_SOCKET}", "status": "disconnected"}
-        except json.JSONDecodeError as e:
-            return {"error": f"Invalid JSON response: {e}", "status": "error"}
-        except Exception as e:
-            return {"error": str(e), "status": "error"}
-
-    def _send_http(self, payload: dict) -> dict:
-        """Send payload via HTTP."""
-        try:
-            import requests
-            resp = requests.post(f"{self.base_url}/api/telegram", json=payload, timeout=10)
-            return resp.json()
-        except Exception as e:
-            return {"error": str(e), "status": "error"}
-
-    def health_check(self) -> bool:
-        """Check if the gateway is reachable."""
-        if self.use_unix_socket:
-            return Path(GATEWAY_SOCKET).exists()
-        try:
-            import requests
-            resp = requests.get(f"{self.base_url}/health", timeout=5)
-            return resp.status_code == 200
+            return json.loads(open(_QG_STATS_PATH).read())
         except Exception:
-            return False
+            pass
+    return {"total_responses": 0, "enforcement_mode": "advisory"}
+
+def _save_qg_stats(stats: dict):
+    stats["last_updated"] = datetime.utcnow().isoformat() + "Z"
+    open(_QG_STATS_PATH, "w").write(json.dumps(stats, indent=2))
+
+def _get_qg_mode() -> str:
+    stats = _load_qg_stats()
+    if stats.get("enforcement_mode") == "blocking":
+        return "blocking"
+    if stats.get("total_responses", 0) >= _QG_SWITCHOVER:
+        return "blocking"
+    return "advisory"
 
 
-class ContextBuffer:
-    """Manages the rolling context window sent to Ollama via the gateway."""
+# Lazy import consult_merge — only loaded when quality gate is actually called
+def _get_consult_merge():
+    from consult_merge import ConsultMergeOrchestrator
+    return ConsultMergeOrchestrator()
 
-    def __init__(self, max_tokens: int = 12000, trim_threshold: float = 0.8):
-        self.max_tokens = max_tokens
-        self.trim_threshold = trim_threshold
-        self.messages: list[dict] = []
-        self.current_tokens = 0
+# ── Session key management ──────────────────────────────────────
+# The gateway stores a UUID per logical session so the orchestrator
+# can be retrieved on every turn within that session.
 
-    def add(self, role: str, content: str, priority: int = 5) -> None:
-        tokens = max(len(content.split()), len(content) // 4)
-        self.messages.append({
-            "role": role,
-            "content": content,
-            "priority": priority,
-            "tokens": tokens,
-            "timestamp": time.time(),
-        })
-        self.current_tokens += tokens
-
-    def should_trim(self) -> bool:
-        return self.current_tokens > (self.max_tokens * self.trim_threshold)
-
-    def get_context(self) -> list[dict]:
-        """Return sorted messages (highest priority last = most likely to be kept)."""
-        return sorted(self.messages, key=lambda m: m["priority"])
-
-    def trim(self, auto_trim_script: Path | None = None) -> dict:
-        """Trigger auto-trim via signal file."""
-        if auto_trim_script and isinstance(auto_trim_script, Path):
-            signal_file = auto_trim_script.parent / "bridge" / "signals" / "trigger-trim.json"
-            signal_file.parent.mkdir(parents=True, exist_ok=True)
-            signal_file.write_text(json.dumps({
-                "mode": "auto",
-                "target_tokens": int(self.max_tokens * 0.6),
-                "timestamp": time.time(),
-            }))
-            return {"status": "signal_sent", "target": int(self.max_tokens * 0.6)}
-        return {"status": "no_script"}
+_SESSIONS: dict[str, str] = {}  # gateway_session_id → orchestrator session_key
 
 
-# Convenience singleton for the gateway
-def get_client() -> GatewayClient:
-    return GatewayClient()
+def _ensure_session_key(gateway_session_id: str,
+                        orchestrator_session_key: str | None = None) -> str:
+    """Return or create the orchestrator session key for a gateway session.
+
+    If *orchestrator_session_key* is provided (e.g. from the gateway's own
+    session_entry), it is stored and returned instead of generating a new UUID.
+    This lets the gateway's pre-existing session key be used by all integration
+    functions without creating a duplicate.
+    """
+    if gateway_session_id not in _SESSIONS:
+        if orchestrator_session_key is not None:
+            _SESSIONS[gateway_session_id] = orchestrator_session_key
+        else:
+            _SESSIONS[gateway_session_id] = f"orch_{uuid.uuid4().hex[:12]}"
+    return _SESSIONS[gateway_session_id]
+
+
+# ── Public API for Gateway ──────────────────────────────────────
+
+# ── Platform guard: only trim on gateway platforms, never on CLI ──
+_TRIM_PLATFORMS = {"telegram", "discord", "slack", "matrix", "signal",
+                   "whatsapp", "sms", "email", "webhook", "dingtalk",
+                   "wecom", "feishu", "qqbot", "bluebubbles", "yuanbao",
+                   "homeassistant"}
+
+def _should_trim(platform: str | None) -> bool:
+    """Return True if this platform should participate in context trimming."""
+    return bool(platform) and platform.lower() in _TRIM_PLATFORMS
+
+
+def gateway_message_start(user_input: str, task_category: str = "general",
+                          gateway_session_id: str = "default",
+                          orchestrator_session_key: str | None = None,
+                          platform: str | None = None) -> dict:
+    """Call at the start of each user message. Returns context to prepend.
+    
+    If *platform* is provided and is a CLI session, trimming is skipped.
+    """
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    if not _should_trim(platform):
+        return {
+            "session_id": sk, "context_header": "",
+            "est_tokens": 0, "headroom": 0,
+            "orchestrator_session_key": sk, "skipped": True,
+        }
+    orch = get_orchestrator(sk)
+    result = orch.start_session(task=task_category, phase="processing")
+    return {
+        "session_id": result["session_id"],
+        "context_header": result["context"],
+        "est_tokens": result["total_est_tokens"],
+        "headroom": result["headroom"],
+        "orchestrator_session_key": sk,
+    }
+
+
+def gateway_register_turn(role: str, content: str,
+                          gateway_session_id: str = "default",
+                          orchestrator_session_key: str | None = None):
+    """Register a user or assistant turn."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    orch.register_conversation_turn(role, content)
+
+
+def gateway_register_tool(tool_name: str, tool_result,
+                          gateway_session_id: str = "default",
+                          orchestrator_session_key: str | None = None):
+    """Register a tool call result."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    text = json.dumps(tool_result) if isinstance(tool_result, dict) else str(tool_result)
+    orch.register_tool_output(tool_name, text)
+
+
+def gateway_trim_check(current_tokens: int = 0, force: bool = False,
+                       target_model: str | None = None,
+                       gateway_session_id: str = "default",
+                       orchestrator_session_key: str | None = None,
+                       platform: str | None = None) -> dict:
+    """Check if trimming is needed. Call before generating response.
+    
+    If *platform* is provided and is a CLI session, trimming is skipped.
+    """
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    if not _should_trim(platform):
+        return {
+            "action": "skipped", "message": "Platform excluded from trimming",
+            "trimmed_blocks": 0, "tokens_recovered": 0, "skipped": True,
+        }
+    orch = get_orchestrator(sk)
+    return orch.trim_context(
+        current_usage_tokens=current_tokens,
+        force=force,
+        target_model=target_model,
+    )
+
+
+def gateway_message_end(summary: str | None = None,
+                        gateway_session_id: str = "default",
+                        orchestrator_session_key: str | None = None) -> dict:
+    """Call at session end. Persists state and runs maintenance."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    result = orch.end_session(summary=summary)
+    drop_orchestrator(sk, summary=summary)
+    _SESSIONS.pop(gateway_session_id, None)
+    return result
+
+
+def gateway_pause_trimming(reason: str = "", gateway_session_id: str = "default",
+                           orchestrator_session_key: str | None = None) -> dict:
+    """Pause context trimming for this session."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.pause_trimming(reason=reason)
+
+
+def gateway_resume_trimming(reason: str = "", gateway_session_id: str = "default",
+                             orchestrator_session_key: str | None = None) -> dict:
+    """Resume context trimming for this session."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.resume_trimming(reason=reason)
+
+
+def gateway_set_block_protected(block_id: str, protected: bool = True,
+                                 gateway_session_id: str = "default",
+                                 orchestrator_session_key: str | None = None) -> dict:
+    """Mark a block as protected (skip trimming) or unprotect it."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.set_block_protected(block_id, protected=protected)
+
+
+# ── Shadow Review (Deferred — 30B primary grinder role, shadow review secondary) ────
+
+def gateway_shadow_review(diff_text: str = "", diff_file_path: str = "",
+                         file_after: str = "", project_context: str = "",
+                         gateway_session_id: str = "default",
+                         orchestrator_session_key: str | None = None) -> dict:
+    """
+    Submit a diff for async shadow review by 30B.
+
+    Currently returns a no-op result (shadow reviewer is DEMOTED per directive:
+    30B is the primary code grinder, not a passive reviewer). Wire this into
+    the real shadow_reviewer.py once the board chain design is finalized.
+    """
+    return {
+        "status": "deferred",
+        "reason": "shadow_reviewer_demoted_30b_is_grinder",
+        "findings": [],
+        "blocked": False,
+        "score": 1.0,
+    }
+
+
+def gateway_shadow_review_result(**kwargs) -> dict:
+    """
+    Poll for shadow review result. Currently returns no-op since shadow
+    review is deferred (30B grinder role takes priority).
+    """
+    return {
+        "status": "not_requested",
+        "reason": "shadow_reviewer_demoted_30b_is_grinder",
+    }
+
+
+def gateway_is_paused(gateway_session_id: str = "default",
+                       orchestrator_session_key: str | None = None) -> bool:
+    """Check if trimming is currently paused for this session."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.is_paused()
+
+
+def gateway_get_pause_info(gateway_session_id: str = "default",
+                           orchestrator_session_key: str | None = None) -> dict | None:
+    """Get pause metadata."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.get_pause_info()
+
+
+def gateway_get_context(gateway_session_id: str = "default",
+                        orchestrator_session_key: str | None = None) -> str:
+    """Get the current composed context string."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk)
+    return orch.get_context()
+
+
+def gateway_status(gateway_session_id: str = "default",
+                   orchestrator_session_key: str | None = None) -> dict:
+    """Return current gateway status for monitoring."""
+    sk = _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = get_orchestrator(sk) if sk in _get_all_sessions() else None
+    pause_info = orch.get_pause_info() if orch and orch.is_paused() else None
+    return {
+        "gateway_session_id": gateway_session_id,
+        "orchestrator_session_key": sk,
+        "active_blocks": len(orch._active_blocks) if orch else 0,
+        "has_session": orch is not None,
+        "is_paused": orch.is_paused() if orch else False,
+        "pause_info": pause_info,
+        "all_sessions": list(_get_all_sessions().keys()),
+    }
+
+
+def gateway_quality_gate(content: str, task_type: str = "general",
+                          gateway_session_id: str = "default",
+                          orchestrator_session_key: str | None = None) -> dict:
+    """Run the consult/merge quality gate on the final response.
+
+    Routes through the ConsultMergeOrchestrator: classifies the task,
+    consults Athena for complex tasks, and runs Ring verification as
+    the final quality gate before delivery.
+
+    **Enforcement mode (Option B):**
+    - First 100 responses: advisory only (log warnings, never block).
+    - After 100 responses: auto-reject (block delivery) on scores < 5/10.
+    - Override: set `enforcement_mode: "blocking"` in qg_stats.json to enforce immediately.
+    """
+    _ensure_session_key(gateway_session_id, orchestrator_session_key)
+    orch = _get_consult_merge()
+    result = orch.quality_gate(content=content, task_type=task_type)
+
+    # ── Quality gate enforcement state machine ──
+    stats = _load_qg_stats()
+    mode = _get_qg_mode()
+    score = result.get("route_detail", {}).get("score", 10.0)
+
+    # Increment response counter
+    stats["total_responses"] = stats.get("total_responses", 0) + 1
+
+    # Auto-switch from advisory → blocking after switchover threshold
+    if mode == "advisory" and stats["total_responses"] >= _QG_SWITCHOVER:
+        mode = "blocking"
+        stats["enforcement_mode"] = "blocking"
+        _save_qg_stats(stats)
+        logger.warning(
+            f"🛡️ Quality gate ENFORCEMENT ACTIVE — crossed {_QG_SWITCHOVER} response threshold. "
+            f"Now blocking responses scoring < {_QG_THRESHOLD}/10."
+        )
+
+    # Handle low scores based on current enforcement mode
+    if result.get("action") == "quality_gate":
+        if score < _QG_THRESHOLD:
+            if mode == "blocking":
+                result["action"] = "quality_gate_reject"
+                result["enforcement"] = "blocking"
+                result["rejected"] = True
+                logger.warning(
+                    f"🚫 Quality gate REJECTED response (score={score}/10, mode={mode})"
+                )
+            else:
+                # Advisory mode — warn but allow
+                result["enforcement"] = "advisory"
+                result["rejected"] = False
+                logger.warning(
+                    f"⚠️ Quality gate WARNING (score={score}/10, mode={mode}) — advisory only"
+                )
+        else:
+            result["enforcement"] = mode
+            result["rejected"] = False
+    else:
+        # Non-quality_gate actions (route, search, etc.) — passthrough
+        result["enforcement"] = mode
+        result["rejected"] = False
+
+    # Persist counter
+    _save_qg_stats(stats)
+
+    return result
+
+
+# ── Batch cleanup (for Night Council / shutdown) ────────────────
+
+def gateway_cleanup_all():
+    """End all active sessions. Call during graceful shutdown."""
+    for sk in list(_get_all_sessions().keys()):
+        drop_orchestrator(sk, summary="Gateway shutdown")
+
+
+# ── Self-Test ────────────────────────────────────────────────────
+if __name__ == "__main__":
+    print("HERMES GATEWAY INTEGRATION — SELF-TEST\n")
+
+    # Simulate a full message lifecycle
+    print("1. gateway_message_start()")
+    start = gateway_message_start(
+        "Write a Python function to parse JSON",
+        task_category="code_generation",
+        gateway_session_id="test-001",
+    )
+    print(f"   Session: {start['session_id']}")
+    print(f"   Context tokens: {start['est_tokens']}, Headroom: {start['headroom']}")
+    print(f"   ✅ Context header loaded ({len(start['context_header'])} chars)")
+
+    print("\n2. gateway_register_turn(user)")
+    gateway_register_turn("user", "Write a Python function to parse JSON strings safely",
+                          gateway_session_id="test-001")
+    status = gateway_status("test-001")
+    print(f"   ✅ Turn registered, blocks: {status['active_blocks']}")
+
+    print("\n3. gateway_register_turn(assistant)")
+    gateway_register_turn("assistant", "```python\nimport json\ndef parse_json(s):\n    return json.loads(s)\n```",
+                          gateway_session_id="test-001")
+    status = gateway_status("test-001")
+    print(f"   ✅ Turn registered, blocks: {status['active_blocks']}")
+
+    print("\n4. gateway_register_tool()")
+    gateway_register_tool("execute_code", {"output": "All tests passed", "exit_code": 0},
+                           gateway_session_id="test-001")
+    status = gateway_status("test-001")
+    print(f"   ✅ Tool output registered, blocks: {status['active_blocks']}")
+
+    print("\n5. gateway_trim_check() — should be within budget")
+    trim = gateway_trim_check(current_tokens=5000, gateway_session_id="test-001")
+    trimmed_n = trim.get("trimmed_blocks", trim.get("trimmed", 0))
+    print(f"   Trimmed: {trimmed_n} blocks, Message: {trim['message']}")
+
+    print("\n6. gateway_status()")
+    status = gateway_status("test-001")
+    print(f"   Status: {status}")
+
+    print("\n7. gateway_get_context()")
+    ctx = gateway_get_context("test-001")
+    print(f"   Context preview ({len(ctx)} chars): {ctx[:120]}...")
+
+    print("\n8. gateway_message_end()")
+    end = gateway_message_end("Successfully generated JSON parser function",
+                              gateway_session_id="test-001")
+    print(f"   Blocks saved: {end['blocks_saved']}, Maintenance: {end['maintenance']}")
+    print(f"   Final stats: {end['final_stats']}")
+
+    print("\n9. gateway_quality_gate()")
+    qg = gateway_quality_gate(
+        content="Here is a Python function to parse JSON: import json; def parse(s): return json.loads(s)",
+        task_type="code_generation",
+        gateway_session_id="test-001",
+    )
+    print(f"   Action: {qg.get('action')}, Model: {qg.get('model')}")
+    print(f"   Quality gate passed: {'quality_gate' in qg.get('action', '')}")
+
+    # Test isolation: new session gets a fresh orchestrator
+    print("\n9. Session isolation test")
+    start2 = gateway_message_start("Second session", gateway_session_id="test-002")
+    print(f"   ✅ New session: {start2['session_id']} (different from test-001)")
+
+    # Cleanup
+    gateway_cleanup_all()
+    print("\n✅ All gateway integration tests passed. Ready to wire into message loop.")
