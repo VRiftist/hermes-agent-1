@@ -31,12 +31,12 @@
 
 | Service | Status | PID/Port |
 |---------|--------|----------|
-| Hermes Gateway | ✅ Running | PID 64251 |
-| Heartbeat Monitor | ✅ Running | PID 56226, 5+ hrs |
-| Heartbeat Task Manager | ✅ Cron | Every 3 min, `--once` mode |
-| Session Watchdog | ✅ Cron | Every 5 min, 114 runs completed |
-| Ollama (Mac) | ✅ Serving | localhost:11434 |
-| Ollama (Linux) | ✅ Serving | .114:11434 (via tunnel) |
+|| Hermes Gateway | ✅ Running | PID 64251, stable 3+ hrs |
+|| Heartbeat Monitor | ✅ Running | PID 56226, 5+ hrs |
+|| Heartbeat Task Manager | ✅ Cron | Every 3 min, `--once` mode, patched (90s cap, batch=1). Stale long-runner daemon killed 2026-06-03. |
+|| Session Watchdog | ✅ Cron | Every 5 min, 114+ runs completed |
+|| Ollama (Mac) | ✅ Serving | localhost:11434 |
+|| Ollama (Linux) | ✅ Serving | .114:11434 (via tunnel) |
 
 ## Known Issues
 
